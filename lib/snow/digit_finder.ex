@@ -1,6 +1,6 @@
 defmodule Snow.DigitFinder do
   @doc ~S"""
-  Finds all digits in a string and returns them as a list of integers
+  Finds all digits in a string and returns them as a numeric string
 
   ## Examples
 
@@ -22,45 +22,40 @@ defmodule Snow.DigitFinder do
     "38"
 
   """
-  def find_digits(string) do
-    find_digits(string, "")
-  end
+  def find_digits(line), do: find_digits(line, "")
 
-  defp find_digits("", acc) do
-    acc
-  end
+  defp find_digits("", acc), do: acc
 
-  defp find_digits(s, acc) do
-    {found, rest} = digit(s)
+  defp find_digits(line, acc) do
+    {found, rest} = digit(line)
     find_digits(rest, acc <> found)
   end
 
-  defp digit("one" <> _ = thing), do: cont("1", thing)
-  defp digit("two" <> _ = thing), do: cont("2", thing)
-  defp digit("three" <> _ = thing), do: cont("3", thing)
-  defp digit("four" <> _ = thing), do: cont("4", thing)
-  defp digit("five" <> _ = thing), do: cont("5", thing)
-  defp digit("six" <> _ = thing), do: cont("6", thing)
-  defp digit("seven" <> _ = thing), do: cont("7", thing)
-  defp digit("eight" <> _ = thing), do: cont("8", thing)
-  defp digit("nine" <> _ = thing), do: cont("9", thing)
-  defp digit("1" <> rest), do: {"1", rest}
-  defp digit("2" <> rest), do: {"2", rest}
-  defp digit("3" <> rest), do: {"3", rest}
-  defp digit("4" <> rest), do: {"4", rest}
-  defp digit("5" <> rest), do: {"5", rest}
-  defp digit("6" <> rest), do: {"6", rest}
-  defp digit("7" <> rest), do: {"7", rest}
-  defp digit("8" <> rest), do: {"8", rest}
-  defp digit("9" <> rest), do: {"9", rest}
+  defp digit("one" <> _ = line), do: found("1", line)
+  defp digit("two" <> _ = line), do: found("2", line)
+  defp digit("three" <> _ = line), do: found("3", line)
+  defp digit("four" <> _ = line), do: found("4", line)
+  defp digit("five" <> _ = line), do: found("5", line)
+  defp digit("six" <> _ = line), do: found("6", line)
+  defp digit("seven" <> _ = line), do: found("7", line)
+  defp digit("eight" <> _ = line), do: found("8", line)
+  defp digit("nine" <> _ = line), do: found("9", line)
+  defp digit("1" <> _ = line), do: found("1", line)
+  defp digit("2" <> _ = line), do: found("2", line)
+  defp digit("3" <> _ = line), do: found("3", line)
+  defp digit("4" <> _ = line), do: found("4", line)
+  defp digit("5" <> _ = line), do: found("5", line)
+  defp digit("6" <> _ = line), do: found("6", line)
+  defp digit("7" <> _ = line), do: found("7", line)
+  defp digit("8" <> _ = line), do: found("8", line)
+  defp digit("9" <> _ = line), do: found("9", line)
+  defp digit(line), do: found("", line)
 
-  defp digit(rest), do: cont("", rest)
+  defp found(found, ""), do: {found, ""}
 
-  defp cont(found, ""), do: {found, ""}
-
-  defp cont(found, rest) do
+  defp found(found, line) do
     {_, rest} =
-      String.split_at(rest, 1)
+      String.split_at(line, 1)
 
     {found, rest}
   end
