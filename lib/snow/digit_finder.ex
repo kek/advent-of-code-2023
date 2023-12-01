@@ -10,33 +10,40 @@ defmodule Snow.DigitFinder do
     "12"
     iex> Snow.DigitFinder.find_digits("one")
     "1"
+    iex> Snow.DigitFinder.find_digits("oneight")
+    "18"
+    iex> Snow.DigitFinder.find_digits("twone")
+    "21"
+    iex> Snow.DigitFinder.find_digits("sevenine")
+    "79"
+    iex> Snow.DigitFinder.find_digits("nineight")
+    "98"
+    iex> Snow.DigitFinder.find_digits("threeight")
+    "38"
 
   """
   def find_digits(string) do
-    IO.inspect(string, label: "find_digits")
-
-    pick_digits(string, "")
-    |> IO.inspect(label: "pick_digits")
+    find_digits(string, "")
   end
 
-  def pick_digits("", acc) do
+  defp find_digits("", acc) do
     acc
   end
 
-  def pick_digits(s, acc) do
+  defp find_digits(s, acc) do
     {found, rest} = digit(s)
-    pick_digits(rest, acc <> found)
+    find_digits(rest, acc <> found)
   end
 
-  defp digit("one" <> rest), do: {"1", rest}
-  defp digit("two" <> rest), do: {"2", rest}
-  defp digit("three" <> rest), do: {"3", rest}
-  defp digit("four" <> rest), do: {"4", rest}
-  defp digit("five" <> rest), do: {"5", rest}
-  defp digit("six" <> rest), do: {"6", rest}
-  defp digit("seven" <> rest), do: {"7", rest}
-  defp digit("eight" <> rest), do: {"8", rest}
-  defp digit("nine" <> rest), do: {"9", rest}
+  defp digit("one" <> _ = thing), do: cont("1", thing)
+  defp digit("two" <> _ = thing), do: cont("2", thing)
+  defp digit("three" <> _ = thing), do: cont("3", thing)
+  defp digit("four" <> _ = thing), do: cont("4", thing)
+  defp digit("five" <> _ = thing), do: cont("5", thing)
+  defp digit("six" <> _ = thing), do: cont("6", thing)
+  defp digit("seven" <> _ = thing), do: cont("7", thing)
+  defp digit("eight" <> _ = thing), do: cont("8", thing)
+  defp digit("nine" <> _ = thing), do: cont("9", thing)
   defp digit("1" <> rest), do: {"1", rest}
   defp digit("2" <> rest), do: {"2", rest}
   defp digit("3" <> rest), do: {"3", rest}
@@ -46,5 +53,15 @@ defmodule Snow.DigitFinder do
   defp digit("7" <> rest), do: {"7", rest}
   defp digit("8" <> rest), do: {"8", rest}
   defp digit("9" <> rest), do: {"9", rest}
-  defp digit(<<_::size(8), rest::binary>>), do: {"", rest}
+
+  defp digit(rest), do: cont("", rest)
+
+  defp cont(found, ""), do: {found, ""}
+
+  defp cont(found, rest) do
+    {_, rest} =
+      String.split_at(rest, 1)
+
+    {found, rest}
+  end
 end

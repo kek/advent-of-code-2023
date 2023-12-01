@@ -19,10 +19,10 @@ defmodule Snow.Days.Day1Test do
       """
       |> String.split("\n", trim: true)
 
-    assert Snow.Days.Day1.part2(test_input) == 281
+    assert Snow.Days.Day1.part2(test_input, false) == 281
   end
 
   test "Day 1 part two real input" do
-    assert Snow.Days.Day1.part2(input()) == 54258
+    assert Snow.Days.Day1.part2(input()) == 54265
   end
 end
