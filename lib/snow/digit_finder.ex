@@ -4,54 +4,50 @@ defmodule Snow.DigitFinder do
 
   ## Examples
 
-    iex> Snow.DigitFinder.find_digits("1")
+    iex> Snow.DigitFinder.parse("1")
     "1"
-    iex> Snow.DigitFinder.find_digits("1x2")
+    iex> Snow.DigitFinder.parse("1x2")
     "12"
-    iex> Snow.DigitFinder.find_digits("one")
+    iex> Snow.DigitFinder.parse("one")
     "1"
-    iex> Snow.DigitFinder.find_digits("oneight")
+    iex> Snow.DigitFinder.parse("oneight")
     "18"
-    iex> Snow.DigitFinder.find_digits("twone")
+    iex> Snow.DigitFinder.parse("twone")
     "21"
-    iex> Snow.DigitFinder.find_digits("sevenine")
+    iex> Snow.DigitFinder.parse("sevenine")
     "79"
-    iex> Snow.DigitFinder.find_digits("nineight")
+    iex> Snow.DigitFinder.parse("nineight")
     "98"
-    iex> Snow.DigitFinder.find_digits("threeight")
+    iex> Snow.DigitFinder.parse("threeight")
     "38"
 
   """
-  def find_digits(line), do: find_digits(line, "")
+  def parse(line), do: parse(line, "")
 
-  defp find_digits("", acc), do: acc
+  defp parse("", acc), do: acc
 
-  defp find_digits(line, acc) do
-    {found, rest} = digit(line)
-    find_digits(rest, acc <> found)
+  defp parse(line, acc) do
+    {first, rest} =
+      line |> String.split_at(1)
+
+    found =
+      if String.match?(first, ~r/[1-9]/) do
+        first
+      else
+        case line do
+          "one" <> _ -> "1"
+          "two" <> _ -> "2"
+          "three" <> _ -> "3"
+          "four" <> _ -> "4"
+          "five" <> _ -> "5"
+          "six" <> _ -> "6"
+          "seven" <> _ -> "7"
+          "eight" <> _ -> "8"
+          "nine" <> _ -> "9"
+          _ -> ""
+        end
+      end
+
+    parse(rest, acc <> found)
   end
-
-  defp digit("one" <> _ = line), do: found("1", line)
-  defp digit("two" <> _ = line), do: found("2", line)
-  defp digit("three" <> _ = line), do: found("3", line)
-  defp digit("four" <> _ = line), do: found("4", line)
-  defp digit("five" <> _ = line), do: found("5", line)
-  defp digit("six" <> _ = line), do: found("6", line)
-  defp digit("seven" <> _ = line), do: found("7", line)
-  defp digit("eight" <> _ = line), do: found("8", line)
-  defp digit("nine" <> _ = line), do: found("9", line)
-  defp digit("1" <> _ = line), do: found("1", line)
-  defp digit("2" <> _ = line), do: found("2", line)
-  defp digit("3" <> _ = line), do: found("3", line)
-  defp digit("4" <> _ = line), do: found("4", line)
-  defp digit("5" <> _ = line), do: found("5", line)
-  defp digit("6" <> _ = line), do: found("6", line)
-  defp digit("7" <> _ = line), do: found("7", line)
-  defp digit("8" <> _ = line), do: found("8", line)
-  defp digit("9" <> _ = line), do: found("9", line)
-  defp digit(line), do: found("", line)
-
-  defp found(found, line), do: {found, remove_first_char(line)}
-
-  defp remove_first_char(string), do: String.split_at(string, 1) |> elem(1)
 end

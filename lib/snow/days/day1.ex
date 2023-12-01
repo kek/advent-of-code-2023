@@ -9,7 +9,7 @@ defmodule Snow.Days.Day1 do
         IO.inspect(x, label: "input")
       end
     end)
-    |> Enum.map(&DigitFinder.find_digits/1)
+    |> Enum.map(&DigitFinder.parse/1)
     |> tap(fn x ->
       if debug do
         IO.inspect(x, label: "found digits")
