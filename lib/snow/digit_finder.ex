@@ -31,23 +31,25 @@ defmodule Snow.DigitFinder do
       line |> String.split_at(1)
 
     found =
-      if String.match?(first, ~r/[1-9]/) do
-        first
-      else
-        case line do
-          "one" <> _ -> "1"
-          "two" <> _ -> "2"
-          "three" <> _ -> "3"
-          "four" <> _ -> "4"
-          "five" <> _ -> "5"
-          "six" <> _ -> "6"
-          "seven" <> _ -> "7"
-          "eight" <> _ -> "8"
-          "nine" <> _ -> "9"
-          _ -> ""
-        end
-      end
+      if String.match?(first, ~r/[1-9]/),
+        do: first,
+        else: begins_with_digit(line)
 
     parse(rest, acc <> found)
+  end
+
+  defp begins_with_digit(line) do
+    case line do
+      "one" <> _ -> "1"
+      "two" <> _ -> "2"
+      "three" <> _ -> "3"
+      "four" <> _ -> "4"
+      "five" <> _ -> "5"
+      "six" <> _ -> "6"
+      "seven" <> _ -> "7"
+      "eight" <> _ -> "8"
+      "nine" <> _ -> "9"
+      _ -> ""
+    end
   end
 end
