@@ -51,8 +51,6 @@ defmodule Snow.DigitFinder do
   defp digit("9" <> _ = line), do: found("9", line)
   defp digit(line), do: found("", line)
 
-  defp found(found, ""), do: {found, ""}
-
   defp found(found, line) do
     {_, rest} =
       String.split_at(line, 1)
