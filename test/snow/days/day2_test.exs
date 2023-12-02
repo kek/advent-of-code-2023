@@ -17,22 +17,29 @@ defmodule Snow.Days.Day2Test do
   end
 
   test "example for part one" do
-    assert calculate(@example) == 8
+    assert calculate_sum_of_minimum_set_of_cubes(@example) == 8
   end
 
   test "solution for part one" do
     input = File.read!("priv/input/Day 2.txt") |> String.split("\n", trim: true)
-    assert calculate(input) == 128
+    assert calculate_sum_of_minimum_set_of_cubes(input) == 2239
   end
 
-  defp calculate(input) do
+  defp calculate_sum_of_minimum_set_of_cubes(input) do
     required_bag = %Snow.Game.Bag{red: 12, green: 13, blue: 14}
 
     input
-    |> Enum.map(&Snow.Game.new/1)
+    |> Enum.map(fn text ->
+      Snow.Game.new(text)
+      |> IO.inspect()
+    end)
     |> Enum.filter(fn game ->
-      Snow.Game.minimal_bag_for_game(game)
-      |> Snow.Game.Bag.is_subset?(required_bag)
+      Enum.all?(game.draws, fn draw ->
+        IO.inspect(draw, label: "draw")
+
+        Snow.Game.Bag.is_subset?(Snow.Game.Bag.from_draw(draw), required_bag)
+        |> IO.inspect(label: "is subset?")
+      end)
     end)
     |> Enum.map(& &1.name)
     |> Enum.map(fn name ->
@@ -40,5 +47,8 @@ defmodule Snow.Days.Day2Test do
       String.to_integer(id)
     end)
     |> Enum.sum()
+  end
+
+  test "example for part two" do
   end
 end

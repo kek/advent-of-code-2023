@@ -45,10 +45,23 @@ defmodule Snow.Game.Bag do
       iex> Snow.Game.Bag.is_subset?(%Snow.Game.Bag{red: 1, green: 2}, %Snow.Game.Bag{red: 1, green: 1})
       false
   """
-  def is_subset?(bag, other) do
+  def is_subset?(%Snow.Game.Bag{} = bag, %Snow.Game.Bag{} = other) do
     Map.keys(bag)
     |> Enum.all?(fn color ->
       Map.get(bag, color) <= Map.get(other, color)
     end)
+  end
+
+  @doc """
+  Create bag from draw.
+
+  ## Examples
+
+      iex> Snow.Game.Bag.from_draw(%Snow.Game.Draw{cubes: [%Snow.Game.Cube{color: :blue, number: 1}, %Snow.Game.Cube{color: :red, number: 2}]})
+      %Snow.Game.Bag{blue: 1, red: 2}
+  """
+  def from_draw(draw) do
+    draw.cubes
+    |> sum_cubes
   end
 end
