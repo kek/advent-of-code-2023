@@ -29,4 +29,26 @@ defmodule Snow.Game.Bag do
     Enum.flat_map(rounds, & &1.draws)
     |> sum_draws
   end
+
+  def sum_game(game) do
+    game.rounds
+    |> sum_rounds
+  end
+
+  @doc """
+  Is this bag a subset of the other bag?
+
+  ## Examples
+
+      iex> Snow.Game.Bag.is_subset?(%Snow.Game.Bag{red: 1, green: 2}, %Snow.Game.Bag{red: 2, green: 3})
+      true
+      iex> Snow.Game.Bag.is_subset?(%Snow.Game.Bag{red: 1, green: 2}, %Snow.Game.Bag{red: 1, green: 1})
+      false
+  """
+  def is_subset?(bag, other) do
+    Map.keys(bag)
+    |> Enum.all?(fn color ->
+      Map.get(bag, color) <= Map.get(other, color)
+    end)
+  end
 end

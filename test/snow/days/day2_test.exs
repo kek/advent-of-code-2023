@@ -10,10 +10,26 @@ defmodule Snow.Days.Day2Test do
            """
            |> String.split("\n", trim: true)
 
-  @tag :skip
   test "minimal bag for game 1" do
     minimal_bag = %Snow.Game.Bag{blue: 3 + 6, green: 2 + 2, red: 4 + 1}
     game = Snow.Game.new(Enum.at(@example, 0))
     assert Snow.Game.minimal_bag_for_game(game) == minimal_bag
+  end
+
+  test "example for part one" do
+    required_bag = %Snow.Game.Bag{red: 12, green: 13, blue: 14}
+
+    assert @example
+           |> Enum.map(&Snow.Game.new/1)
+           |> Enum.filter(fn game ->
+             Snow.Game.minimal_bag_for_game(game)
+             |> Snow.Game.Bag.is_subset?(required_bag)
+           end)
+           |> Enum.map(& &1.name)
+           |> Enum.map(fn name ->
+             [_, id] = String.split(name, " ")
+             String.to_integer(id)
+           end)
+           |> Enum.sum() == 8
   end
 end

@@ -17,6 +17,6 @@ defmodule Snow.Game do
   end
 
   def minimal_bag_for_game(game) do
-    :todo
+    Snow.Game.Bag.sum_game(game)
   end
 end
