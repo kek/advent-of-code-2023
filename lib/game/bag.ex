@@ -31,8 +31,8 @@ defmodule Snow.Game.Bag do
   end
 
   def sum_game(game) do
-    game.rounds
-    |> sum_rounds
+    game.draws
+    |> sum_draws
   end
 
   @doc """

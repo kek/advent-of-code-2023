@@ -5,5 +5,4 @@ defmodule Snow.GameTest do
   doctest Snow.Game.Bag
   doctest Snow.Game.Cube
   doctest Snow.Game.Draw
-  doctest Snow.Game.Round
 end

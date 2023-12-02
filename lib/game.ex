@@ -1,5 +1,5 @@
 defmodule Snow.Game do
-  defstruct name: "", rounds: []
+  defstruct name: "", draws: []
 
   @doc """
   Creates a new game from a string.
@@ -7,13 +7,13 @@ defmodule Snow.Game do
   ## Examples
 
       iex> Snow.Game.new("Game 1: 1 blue")
-      %Snow.Game{name: "Game 1", rounds: [%Snow.Game.Round{draws: [%Snow.Game.Draw{cubes: [%Snow.Game.Cube{color: :blue, number: 1}]}]}]}
+      %Snow.Game{name: "Game 1", draws: [%Snow.Game.Draw{cubes: [%Snow.Game.Cube{color: :blue, number: 1}]}]}
   """
   def new(game) do
-    [name, round_text] = String.split(game, ":", trim: true)
-    round_texts = String.split(round_text, ",", trim: true)
-    rounds = Enum.map(round_texts, &Snow.Game.Round.new/1)
-    %__MODULE__{name: name, rounds: rounds}
+    [name, many_draws] = String.split(game, ":", trim: true)
+    draws_text = String.split(many_draws, ";", trim: true)
+    draws = Enum.map(draws_text, &Snow.Game.Draw.new/1)
+    %__MODULE__{name: name, draws: draws}
   end
 
   def minimal_bag_for_game(game) do

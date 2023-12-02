@@ -1,44 +1,6 @@
 defmodule Snow.Game.BagTest do
   use ExUnit.Case
 
-  test "sum rounds" do
-    assert Snow.Game.Bag.sum_rounds([
-             %Snow.Game.Round{
-               draws: [
-                 %Snow.Game.Draw{
-                   cubes: [
-                     %Snow.Game.Cube{color: :blue, number: 1},
-                     %Snow.Game.Cube{color: :red, number: 2},
-                     %Snow.Game.Cube{color: :green, number: 3}
-                   ]
-                 },
-                 %Snow.Game.Draw{
-                   cubes: [
-                     %Snow.Game.Cube{color: :green, number: 3}
-                   ]
-                 }
-               ]
-             },
-             %Snow.Game.Round{
-               draws: [
-                 %Snow.Game.Draw{
-                   cubes: [
-                     %Snow.Game.Cube{color: :blue, number: 1},
-                     %Snow.Game.Cube{color: :red, number: 2},
-                     %Snow.Game.Cube{color: :green, number: 3}
-                   ]
-                 },
-                 %Snow.Game.Draw{
-                   cubes: [
-                     %Snow.Game.Cube{color: :green, number: 1}
-                   ]
-                 }
-               ]
-             }
-           ]) ==
-             %Snow.Game.Bag{blue: 2, green: 10, red: 4}
-  end
-
   test "sum cubes" do
     assert Snow.Game.Bag.sum_cubes([
              %Snow.Game.Cube{color: :blue, number: 1},
@@ -69,37 +31,29 @@ defmodule Snow.Game.BagTest do
 
   test "sum game" do
     assert Snow.Game.Bag.sum_game(%Snow.Game{
-             rounds: [
-               %Snow.Game.Round{
-                 draws: [
-                   %Snow.Game.Draw{
-                     cubes: [
-                       %Snow.Game.Cube{color: :blue, number: 1},
-                       %Snow.Game.Cube{color: :red, number: 2},
-                       %Snow.Game.Cube{color: :green, number: 3}
-                     ]
-                   },
-                   %Snow.Game.Draw{
-                     cubes: [
-                       %Snow.Game.Cube{color: :green, number: 3}
-                     ]
-                   }
+             draws: [
+               %Snow.Game.Draw{
+                 cubes: [
+                   %Snow.Game.Cube{color: :blue, number: 1},
+                   %Snow.Game.Cube{color: :red, number: 2},
+                   %Snow.Game.Cube{color: :green, number: 3}
                  ]
                },
-               %Snow.Game.Round{
-                 draws: [
-                   %Snow.Game.Draw{
-                     cubes: [
-                       %Snow.Game.Cube{color: :blue, number: 1},
-                       %Snow.Game.Cube{color: :red, number: 2},
-                       %Snow.Game.Cube{color: :green, number: 3}
-                     ]
-                   },
-                   %Snow.Game.Draw{
-                     cubes: [
-                       %Snow.Game.Cube{color: :green, number: 1}
-                     ]
-                   }
+               %Snow.Game.Draw{
+                 cubes: [
+                   %Snow.Game.Cube{color: :green, number: 3}
+                 ]
+               },
+               %Snow.Game.Draw{
+                 cubes: [
+                   %Snow.Game.Cube{color: :blue, number: 1},
+                   %Snow.Game.Cube{color: :red, number: 2},
+                   %Snow.Game.Cube{color: :green, number: 3}
+                 ]
+               },
+               %Snow.Game.Draw{
+                 cubes: [
+                   %Snow.Game.Cube{color: :green, number: 1}
                  ]
                }
              ]
