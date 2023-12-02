@@ -20,12 +20,3 @@ defmodule Snow.Game do
     Snow.Game.Bag.sum_game(game)
   end
 end
-
-defimpl Inspect, for: Snow.Game do
-  def inspect(game, _opts) do
-    draws_description =
-      game.draws |> Enum.map(&inspect/1) |> Enum.join(" / ")
-
-    "#{game.name}! #{draws_description}"
-  end
-end

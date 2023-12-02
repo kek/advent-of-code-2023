@@ -31,14 +31,10 @@ defmodule Snow.Days.Day2Test do
     input
     |> Enum.map(fn text ->
       Snow.Game.new(text)
-      |> IO.inspect()
     end)
     |> Enum.filter(fn game ->
       Enum.all?(game.draws, fn draw ->
-        IO.inspect(draw, label: "draw")
-
         Snow.Game.Bag.is_subset?(Snow.Game.Bag.from_draw(draw), required_bag)
-        |> IO.inspect(label: "is subset?")
       end)
     end)
     |> Enum.map(& &1.name)

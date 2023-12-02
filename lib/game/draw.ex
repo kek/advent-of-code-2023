@@ -15,16 +15,3 @@ defmodule Snow.Game.Draw do
     %__MODULE__{cubes: cubes}
   end
 end
-
-defimpl Inspect, for: Snow.Game.Draw do
-  def inspect(draw, _opts) do
-    cubes_description =
-      draw.cubes
-      |> Enum.map(fn cube ->
-        "#{cube.number} #{cube.color}"
-      end)
-      |> Enum.join(", ")
-
-    "Draw! #{cubes_description}"
-  end
-end
