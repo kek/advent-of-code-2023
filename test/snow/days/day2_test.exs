@@ -17,19 +17,28 @@ defmodule Snow.Days.Day2Test do
   end
 
   test "example for part one" do
+    assert calculate(@example) == 8
+  end
+
+  test "solution for part one" do
+    input = File.read!("priv/input/Day 2.txt") |> String.split("\n", trim: true)
+    assert calculate(input) == 128
+  end
+
+  defp calculate(input) do
     required_bag = %Snow.Game.Bag{red: 12, green: 13, blue: 14}
 
-    assert @example
-           |> Enum.map(&Snow.Game.new/1)
-           |> Enum.filter(fn game ->
-             Snow.Game.minimal_bag_for_game(game)
-             |> Snow.Game.Bag.is_subset?(required_bag)
-           end)
-           |> Enum.map(& &1.name)
-           |> Enum.map(fn name ->
-             [_, id] = String.split(name, " ")
-             String.to_integer(id)
-           end)
-           |> Enum.sum() == 8
+    input
+    |> Enum.map(&Snow.Game.new/1)
+    |> Enum.filter(fn game ->
+      Snow.Game.minimal_bag_for_game(game)
+      |> Snow.Game.Bag.is_subset?(required_bag)
+    end)
+    |> Enum.map(& &1.name)
+    |> Enum.map(fn name ->
+      [_, id] = String.split(name, " ")
+      String.to_integer(id)
+    end)
+    |> Enum.sum()
   end
 end
