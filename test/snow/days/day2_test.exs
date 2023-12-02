@@ -10,8 +10,11 @@ defmodule Snow.Days.Day2Test do
            """
            |> String.split("\n", trim: true)
 
+  @real_input File.read!("priv/input/Day 2.txt")
+              |> String.split("\n", trim: true)
+
   test "minimal bag for game 1" do
-    minimal_bag = %Snow.Game.Bag{blue: 3 + 6, green: 2 + 2, red: 4 + 1}
+    minimal_bag = %Snow.Game.Bag{blue: 6, green: 2, red: 4}
     game = Snow.Game.new(Enum.at(@example, 0))
     assert Snow.Game.minimal_bag_for_game(game) == minimal_bag
   end
@@ -21,8 +24,7 @@ defmodule Snow.Days.Day2Test do
   end
 
   test "solution for part one" do
-    input = File.read!("priv/input/Day 2.txt") |> String.split("\n", trim: true)
-    assert calculate_sum_of_minimum_set_of_cubes(input) == 2239
+    assert calculate_sum_of_minimum_set_of_cubes(@real_input) == 2239
   end
 
   defp calculate_sum_of_minimum_set_of_cubes(input) do
@@ -46,5 +48,23 @@ defmodule Snow.Days.Day2Test do
   end
 
   test "example for part two" do
+    assert calculate_sum_of_power_of_minimum_cube_sets(@example) == 2286
+  end
+
+  test "solution for part two" do
+    assert calculate_sum_of_power_of_minimum_cube_sets(@real_input) == 83435
+  end
+
+  defp calculate_sum_of_power_of_minimum_cube_sets(input) do
+    input
+    |> Enum.map(fn text ->
+      Snow.Game.new(text)
+    end)
+    |> Enum.map(fn game ->
+      mini = Snow.Game.minimal_bag_for_game(game)
+
+      mini.red * mini.green * mini.blue
+    end)
+    |> Enum.sum()
   end
 end

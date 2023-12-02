@@ -8,7 +8,7 @@ defmodule Snow.Game.BagTest do
              %Snow.Game.Cube{color: :red, number: 3},
              %Snow.Game.Cube{color: :green, number: 3}
            ]) ==
-             %Snow.Game.Bag{blue: 1, green: 3, red: 5}
+             %Snow.Game.Bag{blue: 1, green: 3, red: 3}
   end
 
   test "sum draws" do
@@ -26,7 +26,7 @@ defmodule Snow.Game.BagTest do
                ]
              }
            ]) ==
-             %Snow.Game.Bag{blue: 1, green: 6, red: 2}
+             %Snow.Game.Bag{blue: 1, green: 3, red: 2}
   end
 
   test "sum game" do
@@ -58,6 +58,6 @@ defmodule Snow.Game.BagTest do
                }
              ]
            }) ==
-             %Snow.Game.Bag{blue: 2, green: 10, red: 4}
+             %Snow.Game.Bag{blue: 1, green: 3, red: 2}
   end
 end

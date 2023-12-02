@@ -16,7 +16,9 @@ defmodule Snow.Game.Bag do
 
   def sum_cubes(cubes) do
     Enum.reduce(cubes, %__MODULE__{}, fn cube, bag ->
-      Map.update(bag, cube.color, cube.number, &(&1 + cube.number))
+      Map.update(bag, cube.color, cube.number, fn number ->
+        max(number, cube.number)
+      end)
     end)
   end
 
