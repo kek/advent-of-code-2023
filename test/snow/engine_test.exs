@@ -33,7 +33,7 @@ defmodule Snow.EngineTest do
            |> Enum.map(&inspect/1) == [
              "Part 467(3) at (1, 1)",
              "Part 114(3) at (1, 6)",
-             "Symbol * at (2, 5)",
+             "Symbol * at (2, 4)",
              "Part 664(3) at (3, 2)",
              "Part 598(3) at (3, 6)"
            ]
@@ -44,18 +44,18 @@ defmodule Snow.EngineTest do
            |> Enum.map(&inspect/1) == [
              "Part 467(3) at (1, 1)",
              "Part 114(3) at (1, 6)",
-             "Symbol * at (2, 5)",
+             "Symbol * at (2, 4)",
              "Part 35(2) at (3, 3)",
              "Part 633(3) at (3, 7)",
-             "Symbol # at (4, 8)",
+             "Symbol # at (4, 7)",
              "Part 617(3) at (5, 1)",
-             "Symbol * at (5, 5)",
-             "Symbol + at (6, 7)",
+             "Symbol * at (5, 4)",
+             "Symbol + at (6, 6)",
              "Part 58(2) at (6, 8)",
              "Part 592(3) at (7, 3)",
              "Part 755(3) at (8, 7)",
-             "Symbol $ at (9, 5)",
-             "Symbol * at (9, 7)",
+             "Symbol $ at (9, 4)",
+             "Symbol * at (9, 6)",
              "Part 664(3) at (10, 2)",
              "Part 598(3) at (10, 6)"
            ]

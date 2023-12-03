@@ -4,7 +4,7 @@ defmodule Snow.Engine.Symbol do
   def new(line, line_begin, offset_end, data) do
     %__MODULE__{
       row: line,
-      column: 1 + offset_end - line_begin,
+      column: offset_end - line_begin,
       name: data
     }
   end
