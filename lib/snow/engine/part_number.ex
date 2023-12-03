@@ -23,9 +23,9 @@ defmodule Snow.Engine.PartNumber do
     end)
   end
 
-  defp debug(it_is?, label, symbol, part_number) do
+  defp debug(it_is?, label, this, that) do
     if false && it_is? do
-      IO.puts("#{inspect(symbol)} #{label} as #{inspect(part_number)}")
+      IO.puts("#{inspect(this)} #{label} as #{inspect(that)}")
     end
 
     it_is?

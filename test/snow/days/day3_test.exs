@@ -21,7 +21,6 @@ defmodule Snow.Days.Day3Test do
 
   @real_input File.read!("priv/input/Day 3 input.txt")
 
-  # @tag :skip
   test "Real input" do
     assert Snow.Days.Day3.part_one(@real_input) == 527_144
   end

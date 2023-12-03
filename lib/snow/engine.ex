@@ -48,4 +48,10 @@ defmodule Snow.Engine do
 
   defp transform({line, line_begin, char_end, symbol: symbol}),
     do: Symbol.new(line, line_begin, char_end, symbol)
+
+  def split_schematic(schematic) do
+    Enum.split_with(schematic, fn item ->
+      item.__struct__ == Snow.Engine.Symbol
+    end)
+  end
 end

@@ -1,12 +1,10 @@
 defmodule Snow.Days.Day3 do
   def part_one(input) do
-    IO.puts("\n" <> input)
+    if System.get_env("DEBUG") == "true", do: IO.puts("\n" <> input)
     schematic = Snow.Engine.build(input)
 
     {symbols, part_numbers} =
-      Enum.split_with(schematic, fn item ->
-        item.__struct__ == Snow.Engine.Symbol
-      end)
+      Snow.Engine.split_schematic(schematic)
 
     part_numbers
     |> Enum.filter(fn part_number ->
@@ -14,7 +12,7 @@ defmodule Snow.Days.Day3 do
 
       (adjacents != [])
       |> tap(fn b ->
-        if b do
+        if System.get_env("DEBUG") == "true" && b do
           IO.puts("Part #{part_number.id} is adjacent to #{inspect(adjacents)}")
         end
       end)
