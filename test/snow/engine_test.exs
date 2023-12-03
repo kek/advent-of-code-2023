@@ -21,24 +21,6 @@ defmodule Snow.EngineTest do
   .664.598..
   """
 
-  test "first line of the example" do
-    assert Snow.Engine.build("467..114..") |> Enum.map(&inspect/1) == [
-             "Part 467(3) at (1, 1)",
-             "Part 114(3) at (1, 6)"
-           ]
-  end
-
-  test "part of the example" do
-    assert Snow.Engine.build(@example_schematic_fragment)
-           |> Enum.map(&inspect/1) == [
-             "Part 467(3) at (1, 1)",
-             "Part 114(3) at (1, 6)",
-             "Symbol * at (2, 4)",
-             "Part 664(3) at (3, 2)",
-             "Part 598(3) at (3, 6)"
-           ]
-  end
-
   test "all of the example" do
     assert Snow.Engine.build(@example_schematic)
            |> Enum.map(&inspect/1) == [
@@ -58,6 +40,24 @@ defmodule Snow.EngineTest do
              "Symbol * at (9, 6)",
              "Part 664(3) at (10, 2)",
              "Part 598(3) at (10, 6)"
+           ]
+  end
+
+  test "first line of the example" do
+    assert Snow.Engine.build("467..114..") |> Enum.map(&inspect/1) == [
+             "Part 467(3) at (1, 1)",
+             "Part 114(3) at (1, 6)"
+           ]
+  end
+
+  test "part of the example" do
+    assert Snow.Engine.build(@example_schematic_fragment)
+           |> Enum.map(&inspect/1) == [
+             "Part 467(3) at (1, 1)",
+             "Part 114(3) at (1, 6)",
+             "Symbol * at (2, 4)",
+             "Part 664(3) at (3, 2)",
+             "Part 598(3) at (3, 6)"
            ]
   end
 end

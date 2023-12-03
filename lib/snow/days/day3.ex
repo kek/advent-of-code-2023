@@ -10,10 +10,14 @@ defmodule Snow.Days.Day3 do
 
     part_numbers
     |> Enum.filter(fn part_number ->
-      IO.inspect(part_number, label: "part_number")
       adjacents = Snow.Engine.PartNumber.adjacent(part_number, symbols)
-      IO.inspect(adjacents, label: "adjacents")
-      adjacents != []
+
+      (adjacents != [])
+      |> tap(fn b ->
+        if b do
+          IO.puts("Part #{part_number.id} is adjacent to #{inspect(adjacents)}")
+        end
+      end)
     end)
     |> Enum.map(fn part_number ->
       part_number.id

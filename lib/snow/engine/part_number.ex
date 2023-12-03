@@ -16,31 +16,19 @@ defmodule Snow.Engine.PartNumber do
   def adjacent(part_number, symbols) do
     symbols
     |> Enum.filter(fn symbol ->
-      same_row_adjacent(symbol, part_number) ||
-        adjacent_row_adjacent(symbol, part_number)
+      (symbol.column >= part_number.column - 1 &&
+         symbol.column <= part_number.column + part_number.length &&
+         abs(symbol.row - part_number.row) <= 1)
+      |> debug("adjacent row", symbol, part_number)
     end)
   end
 
   defp debug(it_is?, label, symbol, part_number) do
-    if it_is? do
+    if false && it_is? do
       IO.puts("#{inspect(symbol)} #{label} as #{inspect(part_number)}")
     end
 
     it_is?
-  end
-
-  defp same_row_adjacent(symbol, part_number) do
-    ((symbol.row == part_number.row &&
-        symbol.column == part_number.column - 1) ||
-       symbol.column == part_number.column + part_number.length)
-    |> debug("same row", symbol, part_number)
-  end
-
-  defp adjacent_row_adjacent(symbol, part_number) do
-    (symbol.column >= part_number.column - 1 &&
-       symbol.column <= part_number.column + part_number.length &&
-       abs(symbol.row - part_number.row) == 1)
-    |> debug("adjacent row", symbol, part_number)
   end
 end
 
