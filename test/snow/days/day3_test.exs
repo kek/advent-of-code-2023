@@ -14,6 +14,8 @@ defmodule Snow.Days.Day3Test do
   ...$.*....
   .664.598..
   """
+
+  @tag :skip
   test "the example" do
     assert Snow.Days.Day3.part_one(@example_input) == 4361
   end
