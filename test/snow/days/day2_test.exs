@@ -10,7 +10,7 @@ defmodule Snow.Days.Day2Test do
            """
            |> String.split("\n", trim: true)
 
-  @real_input File.read!("priv/input/Day 2.txt")
+  @real_input File.read!("priv/input/Day 2 input.txt")
               |> String.split("\n", trim: true)
 
   test "minimal bag for game 1" do

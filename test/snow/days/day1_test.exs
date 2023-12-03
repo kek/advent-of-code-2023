@@ -3,7 +3,7 @@ defmodule Snow.Days.Day1Test do
   doctest Snow
 
   defp input do
-    File.read!("priv/input/Day 1.txt") |> String.split("\n", trim: true)
+    File.read!("priv/input/Day 1 input.txt") |> String.split("\n", trim: true)
   end
 
   test "Day 1 part two example" do
