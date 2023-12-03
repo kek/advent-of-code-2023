@@ -22,40 +22,42 @@ defmodule Snow.EngineTest do
   """
 
   test "first line of the example" do
-    assert Snow.Engine.build("467..114..") == [
-             %Snow.Engine.PartNumber{row: 1, column: 1, length: 3, id: 467},
-             %Snow.Engine.PartNumber{row: 1, column: 6, length: 3, id: 114}
+    assert Snow.Engine.build("467..114..") |> Enum.map(&inspect/1) == [
+             "Part 467(3) at (1, 1)",
+             "Part 114(3) at (1, 6)"
            ]
   end
 
   test "part of the example" do
-    assert Snow.Engine.build(@example_schematic_fragment) == [
-             %Snow.Engine.PartNumber{row: 1, column: 1, length: 3, id: 467},
-             %Snow.Engine.PartNumber{row: 1, column: 6, length: 3, id: 114},
-             %Snow.Engine.Symbol{row: 2, column: 5, name: ~c"*"},
-             %Snow.Engine.PartNumber{row: 3, column: 2, length: 3, id: 664},
-             %Snow.Engine.PartNumber{row: 3, column: 6, length: 3, id: 598}
+    assert Snow.Engine.build(@example_schematic_fragment)
+           |> Enum.map(&inspect/1) == [
+             "Part 467(3) at (1, 1)",
+             "Part 114(3) at (1, 6)",
+             "Symbol * at (2, 5)",
+             "Part 664(3) at (3, 2)",
+             "Part 598(3) at (3, 6)"
            ]
   end
 
   test "all of the example" do
-    assert Snow.Engine.build(@example_schematic) == [
-             %Snow.Engine.PartNumber{column: 1, id: 467, length: 3, row: 1},
-             %Snow.Engine.PartNumber{column: 6, id: 114, length: 3, row: 1},
-             %Snow.Engine.Symbol{column: 5, name: ~c"*", row: 2},
-             %Snow.Engine.PartNumber{column: 3, id: 35, length: 2, row: 3},
-             %Snow.Engine.PartNumber{column: 7, id: 633, length: 3, row: 3},
-             %Snow.Engine.Symbol{column: 8, name: ~c"#", row: 4},
-             %Snow.Engine.PartNumber{column: 1, id: 617, length: 3, row: 5},
-             %Snow.Engine.Symbol{column: 5, name: ~c"*", row: 5},
-             %Snow.Engine.Symbol{column: 7, name: ~c"+", row: 6},
-             %Snow.Engine.PartNumber{column: 8, id: 58, length: 2, row: 6},
-             %Snow.Engine.PartNumber{column: 3, id: 592, length: 3, row: 7},
-             %Snow.Engine.PartNumber{column: 7, id: 755, length: 3, row: 8},
-             %Snow.Engine.Symbol{column: 5, name: ~c"$", row: 9},
-             %Snow.Engine.Symbol{column: 7, name: ~c"*", row: 9},
-             %Snow.Engine.PartNumber{column: 2, id: 664, length: 3, row: 10},
-             %Snow.Engine.PartNumber{column: 6, id: 598, length: 3, row: 10}
+    assert Snow.Engine.build(@example_schematic)
+           |> Enum.map(&inspect/1) == [
+             "Part 467(3) at (1, 1)",
+             "Part 114(3) at (1, 6)",
+             "Symbol * at (2, 5)",
+             "Part 35(2) at (3, 3)",
+             "Part 633(3) at (3, 7)",
+             "Symbol # at (4, 8)",
+             "Part 617(3) at (5, 1)",
+             "Symbol * at (5, 5)",
+             "Symbol + at (6, 7)",
+             "Part 58(2) at (6, 8)",
+             "Part 592(3) at (7, 3)",
+             "Part 755(3) at (8, 7)",
+             "Symbol $ at (9, 5)",
+             "Symbol * at (9, 7)",
+             "Part 664(3) at (10, 2)",
+             "Part 598(3) at (10, 6)"
            ]
   end
 end
