@@ -16,5 +16,17 @@ defmodule Snow.Engine.SymbolTest do
   """
 
   test "adjacents" do
+    {symbols, parts} =
+      Snow.Engine.build(@example_input)
+      |> Snow.Engine.split_schematic()
+
+    IO.inspect(symbols)
+
+    gears =
+      Snow.Engine.Symbol.gears(symbols)
+
+    adjacents = Snow.Engine.Symbol.adjacent(Enum.at(gears, 0), parts)
+
+    assert inspect(adjacents) == "[Part 467(3) at (1, 1), Part 35(2) at (3, 3)]"
   end
 end

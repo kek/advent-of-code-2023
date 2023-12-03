@@ -9,21 +9,25 @@ defmodule Snow.Engine.Symbol do
     }
   end
 
-  defp debug(it_is?, label, this, that) do
-    if false && it_is? do
-      IO.puts("#{inspect(this)} #{label} as #{inspect(that)}")
+  defp debug(it_is?, msg) do
+    if true && it_is? do
+      IO.puts(msg)
     end
 
     it_is?
   end
 
-  def adjacent(symbol, part_numbers) do
-    part_numbers
-    |> Enum.filter(fn part_number ->
-      (part_number.column >= symbol.column - 1 &&
-         part_number.column <= symbol.column + 1 &&
-         abs(part_number.row - symbol.row) <= 1)
-      |> debug("adjacent row", part_number, symbol)
+  def adjacent(symbol, parts) do
+    parts
+    |> Enum.filter(fn part ->
+      Snow.Engine.PartNumber.adjacent(part, [symbol]) != []
+    end)
+  end
+
+  def gears(symbols) do
+    symbols
+    |> Enum.filter(fn symbol ->
+      symbol.name == ~c"*"
     end)
   end
 end
