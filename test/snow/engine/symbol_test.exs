@@ -20,8 +20,6 @@ defmodule Snow.Engine.SymbolTest do
       Snow.Engine.build(@example_input)
       |> Snow.Engine.split_schematic()
 
-    IO.inspect(symbols)
-
     gears =
       Snow.Engine.Symbol.gears(symbols)
 

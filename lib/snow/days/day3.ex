@@ -2,7 +2,6 @@ defmodule Snow.Days.Day3 do
   require Logger
 
   def part_one(input) do
-    if System.get_env("DEBUG") == "true", do: IO.puts("\n" <> input)
     schematic = Snow.Engine.build(input)
 
     {symbols, parts} =
@@ -12,12 +11,7 @@ defmodule Snow.Days.Day3 do
     |> Enum.filter(fn part_number ->
       adjacents = Snow.Engine.PartNumber.adjacent(part_number, symbols)
 
-      (adjacents != [])
-      |> tap(fn b ->
-        if System.get_env("DEBUG") == "true" && b do
-          IO.puts("Part #{part_number.id} is adjacent to #{inspect(adjacents)}")
-        end
-      end)
+      adjacents != []
     end)
     |> Enum.map(fn part_number ->
       part_number.id

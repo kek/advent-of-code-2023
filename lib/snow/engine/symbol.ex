@@ -9,14 +9,6 @@ defmodule Snow.Engine.Symbol do
     }
   end
 
-  defp debug(it_is?, msg) do
-    if true && it_is? do
-      IO.puts(msg)
-    end
-
-    it_is?
-  end
-
   def adjacent(symbol, parts) do
     parts
     |> Enum.filter(fn part ->
