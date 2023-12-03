@@ -42,7 +42,7 @@ defmodule Snow.Engine.PartNumber do
 
     %__MODULE__{
       row: line,
-      column: offset_end - length - line_begin,
+      column: 1 + offset_end - length - line_begin,
       length: length,
       id: data
     }
@@ -55,7 +55,7 @@ defmodule Snow.Engine.Symbol do
   def new(line, line_begin, offset_end, data) do
     %__MODULE__{
       row: line,
-      column: offset_end - line_begin,
+      column: 1 + offset_end - line_begin,
       name: data
     }
   end
