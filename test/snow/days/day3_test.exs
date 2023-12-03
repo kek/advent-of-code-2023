@@ -15,13 +15,21 @@ defmodule Snow.Days.Day3Test do
   .664.598..
   """
 
-  test "the example" do
+  @real_input File.read!("priv/input/Day 3 input.txt")
+
+  test "Part one example" do
     assert Snow.Days.Day3.part_one(@example_input) == 4361
   end
 
-  @real_input File.read!("priv/input/Day 3 input.txt")
-
-  test "Real input" do
+  test "Part one real" do
     assert Snow.Days.Day3.part_one(@real_input) == 527_144
+  end
+
+  test "Part two example" do
+    assert Snow.Days.Day3.part_two(@example_input) == 467_835
+  end
+
+  test "Part two real" do
+    assert Snow.Days.Day3.part_two(@real_input) == 81_463_996
   end
 end
