@@ -10,16 +10,7 @@ defmodule Snow.Scratchcard do
 
     case wins do
       0 -> 0
-      1 -> 1
-      2 -> 2
-      3 -> 4
-      4 -> 8
-      5 -> 16
-      6 -> 32
-      7 -> 64
-      8 -> 128
-      9 -> 256
-      10 -> 512
+      something -> Integer.pow(2, something - 1)
     end
   end
 
