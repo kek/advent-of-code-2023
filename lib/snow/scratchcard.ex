@@ -5,16 +5,16 @@ defmodule Snow.Scratchcard do
     end)
   end
 
-  def pile_worth([card]) do
+  def pile_worth([]) do
+    0
+  end
+
+  def pile_worth([card | rest]) do
     wins = MapSet.intersection(card.left, card.right) |> MapSet.size()
 
     case wins do
       0 -> 0
       something -> Integer.pow(2, something - 1)
-    end
-  end
-
-  def pile_worth([card | rest]) do
-    pile_worth([card]) + pile_worth(rest)
+    end + pile_worth(rest)
   end
 end
