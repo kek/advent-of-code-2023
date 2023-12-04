@@ -16,6 +16,7 @@ defmodule Snow.Engine.Parser do
     :schematic,
     choice([
       ignore(string("\n")),
+      ignore(string("\r")),
       ignore(string(".")),
       part_number,
       symbol
