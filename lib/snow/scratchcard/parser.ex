@@ -3,11 +3,21 @@ defmodule Snow.Scratchcard.Parser do
 
   defparsec(
     :scratchcard,
-    choice([
-      ignore(string("\n")),
-      ignore(string("\r")),
-      ignore(string(" "))
-    ])
+    tag(
+      string("Card")
+      |> ignore()
+      |> ignore(repeat(string(" ")))
+      |> concat(integer(min: 1) |> tag(:id))
+      |> ignore(string(":"))
+      |> ignore(repeat(string(" ")))
+      |> tag(repeat(integer(min: 1) |> repeat(string(" ") |> ignore())), :left)
+      |> ignore(string("|"))
+      |> ignore(repeat(string(" ")))
+      |> tag(repeat(integer(min: 1) |> repeat(string(" ") |> ignore())), :right)
+      |> ignore(optional(string("\r")))
+      |> ignore(string("\n")),
+      :card
+    )
     |> repeat()
   )
 end
