@@ -50,18 +50,22 @@ defmodule Snow.Almanac.Defaults do
     [1..3]
     iex> difference([], [1..3])
     [1..3]
-    #iex> difference([1..3], [2..2])
-    #[1..1, 3..3]
+    iex> difference([1..3], [2..2])
+    [1..1, 3..3]
   """
   def difference(left, []), do: left
   def difference([], right), do: right
 
   def difference(left, right) do
-    # for each item in right, remove elements from the left that are in the other.
+    # for each item in right, remove elements from the left that are in the intersection.
     # do the reverse for the left.
     # the sum of these two is the difference.
-    left = left |> Enum.flat_map(&shrink_to_avoid(right, [&1]))
-    right = right |> Enum.flat_map(&shrink_to_avoid(left, [&1]))
+    intersection =
+      intersection(left, right)
+      |> IO.inspect(label: "intersection of #{inspect(left)} and #{inspect(right)}}")
+
+    left = left |> Enum.flat_map(&shrink_to_avoid(intersection, [&1]))
+    right = right |> Enum.flat_map(&shrink_to_avoid(intersection, [&1]))
     union(left, right)
   end
 
@@ -141,8 +145,14 @@ defmodule Snow.Almanac.Defaults do
           [me]
         else
           cond do
-            me.first >= other.first && me.last <= other.last -> []
-            true -> [max(other.last + 1, me.first)..min(other.first + 1, me.last)]
+            me.first >= other.first && me.last <= other.last ->
+              []
+
+            me.first < other.first && me.last > other.last ->
+              [me.first..(other.first - 1), (other.last + 1)..me.last]
+
+            true ->
+              [max(other.last + 1, me.first)..min(other.first + 1, me.last)]
           end
         end
       end)

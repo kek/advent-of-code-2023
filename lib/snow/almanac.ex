@@ -18,12 +18,10 @@ defmodule Snow.Almanac do
   @doc """
   Given ranges, a map name and an almanac, fill out defaults in the ranges where there was no mapping found in the almanac.
 
-
     ### Examples
 
     #iex> decorate_with_defaults([1..1, 2..2], [3..3], "seed-to-soil", %{"seed-to-soil" => [1..1, 2..2]})
     #[1..1, 2..2, 3..3]
-
   """
 
   def decorate_with_defaults(ranges, _defaults, _map_name, _almanac) do
@@ -44,10 +42,10 @@ defmodule Snow.Almanac do
         mappings -> mappings
       end
 
-    IO.inspect(mappings,
-      label:
-        "#{Range.size(hd(mappings))} mappings for #{inspect(range)} (#{Range.size(range)}) in #{map_name}"
-    )
+    # IO.inspect(mappings,
+    #   label:
+    #     "#{Range.size(hd(mappings))} mappings for #{inspect(range)} (#{Range.size(range)}) in #{map_name}"
+    # )
 
     mappings ++ fetch(rest, map_name, almanac)
 
