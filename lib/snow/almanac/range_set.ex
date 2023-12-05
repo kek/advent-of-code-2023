@@ -73,7 +73,8 @@ defmodule Snow.Almanac.RangeSet do
     # the sum of these two is the difference.
     intersection =
       intersection(left, right)
-      |> IO.inspect(label: "intersection of #{inspect(left)} and #{inspect(right)}}")
+
+    # |> IO.inspect(label: "intersection of #{inspect(left)} and #{inspect(right)}}")
 
     left = left |> Enum.flat_map(&shrink_to_avoid(intersection, [&1]))
     right = right |> Enum.flat_map(&shrink_to_avoid(intersection, [&1]))

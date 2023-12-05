@@ -11,8 +11,8 @@ defmodule Snow.Almanac do
   end
 
   def fetch_with_default(ranges, map_name, almanac) do
-    ranges = fetch(ranges, map_name, almanac) |> decorate_with_defaults(ranges, map_name, almanac)
-    ranges
+    fetch(ranges, map_name, almanac)
+    |> decorate_with_defaults(ranges, map_name, almanac)
   end
 
   @doc """
@@ -25,7 +25,6 @@ defmodule Snow.Almanac do
     iex> decorate_with_defaults([2..2], [1..1], "seed-to-soil", %{"seed-to-soil" => [{1..1, 2..2}]})
     [2..2]
   """
-
   def decorate_with_defaults(ranges, defaults, map_name, almanac) do
     mappings = almanac[map_name]
     sources = Enum.map(mappings, fn {src, _dst} -> src end)
@@ -37,26 +36,7 @@ defmodule Snow.Almanac do
 
   def fetch([range | rest], map_name, almanac) do
     maps = Map.get(almanac, map_name)
-
-    mappings =
-      case Enum.flat_map(maps, &Snow.Almanac.RangeMap.get_list(range, &1)) do
-        [] -> [range]
-        mappings -> mappings
-      end
-
-    # IO.inspect(mappings,
-    #   label:
-    #     "#{Range.size(hd(mappings))} mappings for #{inspect(range)} (#{Range.size(range)}) in #{map_name}"
-    # )
-
-    mappings ++ fetch(rest, map_name, almanac)
-
-    # [
-    #   maps
-    #   |> Enum.find_value(range, fn {src, dst} ->
-    #     Snow.Almanac.RangeMap.get(range, {src, dst})
-    #   end)
-    #   | fetch(rest, map_name, almanac)
-    # ]
+    targets = Enum.flat_map(maps, &Snow.Almanac.RangeMap.get_list(range, &1))
+    targets ++ fetch(rest, map_name, almanac)
   end
 end

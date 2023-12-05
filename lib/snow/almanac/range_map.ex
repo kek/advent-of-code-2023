@@ -18,6 +18,12 @@ defmodule Snow.Almanac.RangeMap do
     3..3
     iex> get(1..2, {2..4, 1..3})
     1..1
+    iex> get(1..5, {2..4, 7..9})
+    7..9
+    iex> get(3..6, {2..4, 7..9})
+    8..9
+    iex> get(8..9, {1..9, 11..19})
+    18..19
   """
   @spec get(Range.t(), {Range.t(), Range.t()}) :: nil | Range.t()
   def get(range, {src, dst}) do

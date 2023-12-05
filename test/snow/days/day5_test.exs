@@ -46,7 +46,6 @@ defmodule Snow.Days.Day5Test do
     assert lowest(part1(almanac)) == 35..35
   end
 
-  @tag :skip
   test "The example part 2" do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
     almanac = Snow.Almanac.Parser.transform(parsed)
@@ -62,6 +61,7 @@ defmodule Snow.Days.Day5Test do
           |> Enum.chunk_every(2)
           |> Enum.map(fn [begin, length] -> begin..(begin + length - 1) end)
           |> List.flatten()
+          |> IO.inspect(label: "part2 seeds")
     }
   end
 
@@ -72,12 +72,11 @@ defmodule Snow.Days.Day5Test do
     }
   end
 
-  @tag :skip
   test "The real data" do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@real_input)
     almanac = Snow.Almanac.Parser.transform(parsed)
     assert lowest(part1(almanac)) == 389_056_265..389_056_265
-    # assert lowest(part2(almanac)) == 46
+    assert lowest(part2(almanac)) == 137_516_820..170_926_000
   end
 
   defp lowest(almanac) do
@@ -86,7 +85,7 @@ defmodule Snow.Days.Day5Test do
 
     Snow.Almanac.location_for_seed(almanac, seed_ranges)
     |> Enum.sort()
-    |> IO.inspect(label: "locations")
+    # |> IO.inspect(label: "locations")
     |> hd
   end
 end
