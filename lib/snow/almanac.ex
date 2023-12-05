@@ -20,15 +20,17 @@ defmodule Snow.Almanac do
 
     ### Examples
 
-    #iex> decorate_with_defaults([1..1, 2..2], [3..3], "seed-to-soil", %{"seed-to-soil" => [1..1, 2..2]})
-    #[1..1, 2..2, 3..3]
+    iex> decorate_with_defaults([1..1, 2..2], [3..3], "seed-to-soil", %{"seed-to-soil" => [{1..1, 2..2}]})
+    [1..1, 2..2, 3..3]
+    iex> decorate_with_defaults([2..2], [1..1], "seed-to-soil", %{"seed-to-soil" => [{1..1, 2..2}]})
+    [2..2]
   """
 
-  def decorate_with_defaults(ranges, _defaults, _map_name, _almanac) do
-    # mappings = almanac[map_name]
-    # lowest_src = mappings |> Enum.map(fn {src, dst} -> hd(Enum.take(src, 1)) end) |> Enum.min()
-
-    ranges
+  def decorate_with_defaults(ranges, defaults, map_name, almanac) do
+    mappings = almanac[map_name]
+    sources = Enum.map(mappings, fn {src, _dst} -> src end)
+    unmappable_defaults = Snow.Almanac.RangeSet.subtract(defaults, sources)
+    ranges ++ unmappable_defaults
   end
 
   def fetch([], _, _), do: []

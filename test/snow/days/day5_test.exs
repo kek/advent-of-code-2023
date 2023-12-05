@@ -86,6 +86,7 @@ defmodule Snow.Days.Day5Test do
 
     Snow.Almanac.location_for_seed(almanac, seed_ranges)
     |> Enum.sort()
+    |> IO.inspect(label: "locations")
     |> hd
   end
 end
