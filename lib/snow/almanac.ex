@@ -19,7 +19,8 @@ defmodule Snow.Almanac do
 
       if !Range.disjoint?(range_to_find, src) do
         IO.puts("Found #{inspect(range_to_find)} in it")
-        dst
+        diff = hd(Enum.take(dst, 1)) - hd(Enum.take(src, 1))
+        Range.shift(range_to_find, diff)
       else
         IO.puts("Not found #{inspect(range_to_find)} here - defaulting")
         false

@@ -43,7 +43,7 @@ defmodule Snow.Days.Day5Test do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
     almanac = Snow.Almanac.Parser.transform(parsed)
 
-    assert lowest(part1(almanac)) == 35
+    assert lowest(part1(almanac)) == 35..35
   end
 
   @tag :skip
@@ -51,7 +51,7 @@ defmodule Snow.Days.Day5Test do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
     almanac = Snow.Almanac.Parser.transform(parsed)
 
-    assert lowest(part2(almanac)) == 46
+    assert lowest(part2(almanac)) == 46..46
   end
 
   defp part2(%{"seeds" => seeds} = almanac) do
@@ -72,13 +72,12 @@ defmodule Snow.Days.Day5Test do
     }
   end
 
-  @tag :skip
   test "The real data" do
     IO.puts("Gotta")
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@real_input)
     almanac = Snow.Almanac.Parser.transform(parsed)
     IO.puts("Go fast")
-    assert lowest(part1(almanac)) == 389_056_265
+    assert lowest(part1(almanac)) == 389_056_265..389_056_265
     # assert lowest(part2(almanac)) == 46
   end
 
