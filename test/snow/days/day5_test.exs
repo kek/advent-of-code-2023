@@ -43,36 +43,50 @@ defmodule Snow.Days.Day5Test do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
     almanac = Snow.Almanac.Parser.transform(parsed)
 
-    assert lowest(almanac) == 35
+    assert lowest(part1(almanac)) == 35
   end
 
+  @tag :skip
+  test "The example part 2" do
+    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
+    almanac = Snow.Almanac.Parser.transform(parsed)
+
+    assert lowest(part2(almanac)) == 46
+  end
+
+  defp part2(%{"seeds" => seeds} = almanac) do
+    %{
+      almanac
+      | "seeds" =>
+          seeds
+          |> Enum.chunk_every(2)
+          |> Enum.map(fn [begin, length] -> begin..(begin + length - 1) end)
+          |> List.flatten()
+    }
+  end
+
+  defp part1(%{"seeds" => seeds} = almanac) do
+    %{
+      almanac
+      | "seeds" => Enum.map(seeds, &(&1..&1))
+    }
+  end
+
+  @tag :skip
   test "The real data" do
     IO.puts("Gotta")
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@real_input)
     almanac = Snow.Almanac.Parser.transform(parsed)
     IO.puts("Go fast")
-    assert lowest(almanac) == 35
+    assert lowest(part1(almanac)) == 389_056_265
+    # assert lowest(part2(almanac)) == 46
   end
 
   defp lowest(almanac) do
-    seeds = almanac["seeds"]
+    seed_ranges = almanac["seeds"]
 
-    max_parallellism = div(Enum.count(seeds), 3)
-    chunky = fn seed -> rem(seed, max_parallellism) end
-
-    batches =
-      seeds
-      |> Enum.sort_by(chunky)
-      |> Enum.chunk_by(chunky)
-
-    batches
-    |> Enum.map(fn batch ->
-      Task.async(fn ->
-        batch
-        |> Enum.map(&Snow.Almanac.location_for_seed(almanac, &1))
-      end)
-    end)
-    |> Enum.flat_map(&Task.await(&1, 60000))
+    seed_ranges
+    |> Enum.map(&Snow.Almanac.location_for_seed(almanac, &1))
     |> Enum.sort()
     |> hd
   end

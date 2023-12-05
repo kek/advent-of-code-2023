@@ -45,12 +45,10 @@ defmodule Snow.Almanac.Parser do
   end
 
   defp understand_maps([]) do
-    %{}
+    []
   end
 
-  defp understand_maps([{:map, [dst, src, offset]} | rest]) do
-    Enum.zip(src..(src + offset), dst..(dst + offset))
-    |> Map.new()
-    |> Map.merge(understand_maps(rest))
+  defp understand_maps([{:map, [dst, src, length]} | rest]) do
+    [{src..(src + length - 1), dst..(dst + length - 1)} | understand_maps(rest)]
   end
 end

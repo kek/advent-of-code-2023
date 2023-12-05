@@ -94,13 +94,13 @@ defmodule Snow.Almanac.ParserTest do
 
     assert %{
              "seeds" => [79, 14, 55, 13],
-             "fertilizer-to-water" => %{},
-             "humidity-to-location" => %{},
-             "light-to-temperature" => %{},
-             "seed-to-soil" => %{},
-             "soil-to-fertilizer" => %{},
-             "temperature-to-humidity" => %{},
-             "water-to-light" => %{}
+             "fertilizer-to-water" => _,
+             "humidity-to-location" => _,
+             "light-to-temperature" => _,
+             "seed-to-soil" => _,
+             "soil-to-fertilizer" => _,
+             "temperature-to-humidity" => _,
+             "water-to-light" => _
            } = Snow.Almanac.Parser.transform(parsed)
   end
 end
