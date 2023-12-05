@@ -38,40 +38,69 @@ defmodule Snow.Almanac.ParserTest do
   """
 
   test "Parsing the almanac" do
-    assert Snow.Almanac.Parser.almanac(@example) == {
+    assert Snow.Almanac.Parser.text(@example) == {
              :ok,
              [
-               {:seeds, [map: [79, 14, 55, 13]]},
-               {:label, ["seed-to-soil"]},
-               {:map, [50, 98, 2]},
-               {:map, ~c"420"},
-               {:label, ["soil-to-fertilizer"]},
-               {:map, [0, 15, 37]},
-               {:map, [37, 52, 2]},
-               {:map, [39, 0, 15]},
-               {:label, ["fertilizer-to-water"]},
-               {:map, ~c"15\b"},
-               {:map, [0, 11, 42]},
-               {:map, [42, 0, 7]},
-               {:map, [57, 7, 4]},
-               {:label, ["water-to-light"]},
-               {:map, [88, 18, 7]},
-               {:map, [18, 25, 70]},
-               {:label, ["light-to-temperature"]},
-               {:map, [45, 77, 23]},
-               {:map, [81, 45, 19]},
-               {:map, ~c"D@\r"},
-               {:label, ["temperature-to-humidity"]},
-               {:map, [0, 69, 1]},
-               {:map, [1, 0, 69]},
-               {:label, ["humidity-to-location"]},
-               {:map, ~c"<8%"},
-               {:map, [56, 93, 4]}
+               seeds: [map: [79, 14, 55, 13]],
+               category: [
+                 {:label, ["seed-to-soil"]},
+                 {:map, [50, 98, 2]},
+                 {:map, ~c"420"}
+               ],
+               category: [
+                 {:label, ["soil-to-fertilizer"]},
+                 {:map, [0, 15, 37]},
+                 {:map, [37, 52, 2]},
+                 {:map, [39, 0, 15]}
+               ],
+               category: [
+                 {:label, ["fertilizer-to-water"]},
+                 {:map, ~c"15\b"},
+                 {:map, [0, 11, 42]},
+                 {:map, [42, 0, 7]},
+                 {:map, [57, 7, 4]}
+               ],
+               category: [
+                 {:label, ["water-to-light"]},
+                 {:map, [88, 18, 7]},
+                 {:map, [18, 25, 70]}
+               ],
+               category: [
+                 {:label, ["light-to-temperature"]},
+                 {:map, [45, 77, 23]},
+                 {:map, [81, 45, 19]},
+                 {:map, ~c"D@\r"}
+               ],
+               category: [
+                 {:label, ["temperature-to-humidity"]},
+                 {:map, [0, 69, 1]},
+                 {:map, [1, 0, 69]}
+               ],
+               category: [
+                 {:label, ["humidity-to-location"]},
+                 {:map, ~c"<8%"},
+                 {:map, [56, 93, 4]}
+               ]
              ],
              "",
              %{},
              {34, 340},
              340
            }
+  end
+
+  test "transform" do
+    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
+
+    assert %{
+             "seeds" => [79, 14, 55, 13],
+             "fertilizer-to-water" => %{},
+             "humidity-to-location" => %{},
+             "light-to-temperature" => %{},
+             "seed-to-soil" => %{},
+             "soil-to-fertilizer" => %{},
+             "temperature-to-humidity" => %{},
+             "water-to-light" => %{}
+           } = Snow.Almanac.Parser.transform(parsed)
   end
 end

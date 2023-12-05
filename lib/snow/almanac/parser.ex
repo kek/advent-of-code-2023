@@ -5,22 +5,52 @@ defmodule Snow.Almanac.Parser do
     times(
       integer(min: 1)
       |> optional(ignore(string(" "))),
+      # Maybe specify exactly 3
       min: 1
     )
     |> tag(:map)
     |> ignore(string("\n"))
 
   defparsec(
-    :almanac,
+    :text,
     ignore(string("seeds: "))
+    # The seed list is not really a map in semantics but can be parsed as one.
     |> concat(map)
     |> tag(:seeds)
     |> ignore(string("\n"))
     |> times(
-      tag(utf8_string([?a..?z, ?-], min: 1) |> ignore(string(" map:\n")), :label)
-      |> repeat(map)
-      |> ignore(optional(string("\n"))),
+      tag(
+        utf8_string([?a..?z, ?-], min: 1)
+        |> tag(:label)
+        |> ignore(string(" map:\n"))
+        |> repeat(map)
+        |> ignore(optional(string("\n"))),
+        :category
+      ),
       min: 1
     )
   )
+
+  def transform([{:seeds, [{:map, seeds}]} | maps]) do
+    %{"seeds" => seeds} |> Map.merge(understand(maps))
+  end
+
+  defp understand([]), do: %{}
+
+  defp understand([
+         {:category, [{:label, [label]} | maps]} | rest
+       ]) do
+    %{label => understand_maps(maps)}
+    |> Map.merge(understand(rest))
+  end
+
+  defp understand_maps([]) do
+    %{}
+  end
+
+  defp understand_maps([{:map, [dst, src, offset]} | rest]) do
+    Enum.zip(src..(src + offset), dst..(dst + offset))
+    |> Map.new()
+    |> Map.merge(understand_maps(rest))
+  end
 end
