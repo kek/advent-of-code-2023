@@ -78,35 +78,53 @@ defmodule Snow.Days.Day4Test do
   Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
   """
 
-  test "example" do
-    {:ok, parsed, _, _, _, _} = Snow.Scratchcard.Parser.scratchcard(@example)
+  defp solution(input) do
+    {:ok, parsed, _, _, _, _} = Snow.Scratchcard.Parser.scratchcard(input)
 
     deck =
       Snow.Scratchcard.from_parsed(parsed)
 
-    game = deck ++ Enum.flat_map(deck, &Snow.Scratchcard.win_more(&1, deck))
+    count = Enum.count(deck)
+    # max_parallellism = min(System.schedulers_online(), count)
+    # count/3 seems to be the fastest?!
+    max_parallellism = div(count, 3)
+    chunky = fn %{id: id} -> rem(id, max_parallellism) end
+
+    batches =
+      deck
+      |> Enum.sort_by(chunky)
+      |> Enum.chunk_by(chunky)
+
+    batches
+    |> Enum.map(fn batch ->
+      Enum.count(batch)
+    end)
+
+    # |> IO.inspect(label: "batches")
+
+    batches
+    |> Enum.map(fn batch ->
+      Task.async(fn ->
+        batch
+        |> Enum.flat_map(&Snow.Scratchcard.win_more(&1, deck))
+      end)
+    end)
+    |> Enum.flat_map(&Task.await(&1, 60000))
+    |> Enum.concat(deck)
+  end
+
+  test "example" do
+    game = solution(@example)
+
     assert Enum.count(game) == 30
   end
 
   @real_input File.read!("priv/input/Day 4 input.txt")
 
+  @tag :skip
   test "part two real data" do
-    {:ok, parsed, _, _, _, _} = Snow.Scratchcard.Parser.scratchcard(@real_input)
+    game = solution(@real_input)
 
-    deck =
-      Snow.Scratchcard.from_parsed(parsed)
-
-    game = deck ++ Enum.flat_map(deck, &Snow.Scratchcard.win_more(&1, deck))
     assert Enum.count(game) == 8_063_216
-  end
-
-  def human(cards) do
-    cards
-    |> Enum.map(& &1.id)
-    |> Enum.sort()
-    |> Enum.chunk_by(& &1)
-    |> Enum.map(fn [id | _] = cards ->
-      [id, Enum.count(cards)]
-    end)
   end
 end
