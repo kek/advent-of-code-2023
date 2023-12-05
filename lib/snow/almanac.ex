@@ -1,38 +1,62 @@
 defmodule Snow.Almanac do
-  def location_for_seed(almanac, seed_range, debug \\ false) do
-    seed_range
-    |> get("seed-to-soil", almanac, debug)
-    |> get("soil-to-fertilizer", almanac, debug)
-    |> get("fertilizer-to-water", almanac, debug)
-    |> get("water-to-light", almanac, debug)
-    |> get("light-to-temperature", almanac, debug)
-    |> get("temperature-to-humidity", almanac, debug)
-    |> get("humidity-to-location", almanac, debug)
+  def location_for_seed(almanac, seed_ranges) do
+    seed_ranges
+    |> fetch_with_default("seed-to-soil", almanac)
+    |> fetch_with_default("soil-to-fertilizer", almanac)
+    |> fetch_with_default("fertilizer-to-water", almanac)
+    |> fetch_with_default("water-to-light", almanac)
+    |> fetch_with_default("light-to-temperature", almanac)
+    |> fetch_with_default("temperature-to-humidity", almanac)
+    |> fetch_with_default("humidity-to-location", almanac)
   end
 
-  def get(range, map_name, almanac, debug \\ false) do
-    if debug, do: IO.puts("Looking for #{inspect(range)} in #{map_name}")
-
-    Map.get(almanac, map_name)
-    |> Enum.find_value(range, fn {src, dst} ->
-      if debug, do: IO.puts("#{map_name}: #{inspect(src)} -> #{inspect(dst)}")
-
-      map_range(range, src, dst, debug)
-    end)
-    |> tap(fn result ->
-      if debug,
-        do: IO.puts("Result: Mapping #{map_name} for #{inspect(range)} -> #{inspect(result)}")
-    end)
+  def fetch_with_default(ranges, map_name, almanac) do
+    ranges = fetch(ranges, map_name, almanac) |> decorate_with_defaults(ranges, map_name, almanac)
+    ranges
   end
 
-  defp map_range(range, src, dst, debug) do
-    if !Range.disjoint?(range, src) do
-      if debug, do: IO.puts("Found #{inspect(range)} in it")
-      diff = hd(Enum.take(dst, 1)) - hd(Enum.take(src, 1))
-      Range.shift(range, diff)
-    else
-      if debug, do: IO.puts("Not found #{inspect(range)} here - defaulting")
-      false
-    end
+  @doc """
+  Given ranges, a map name and an almanac, fill out defaults in the ranges where there was no mapping found in the almanac.
+
+
+    ### Examples
+
+    #iex> decorate_with_defaults([1..1, 2..2], [3..3], "seed-to-soil", %{"seed-to-soil" => [1..1, 2..2]})
+    #[1..1, 2..2, 3..3]
+
+  """
+
+  def decorate_with_defaults(ranges, _defaults, _map_name, _almanac) do
+    # mappings = almanac[map_name]
+    # lowest_src = mappings |> Enum.map(fn {src, dst} -> hd(Enum.take(src, 1)) end) |> Enum.min()
+
+    ranges
+  end
+
+  def fetch([], _, _), do: []
+
+  def fetch([range | rest], map_name, almanac) do
+    maps = Map.get(almanac, map_name)
+
+    mappings =
+      case Enum.flat_map(maps, &Snow.Almanac.RangeMap.get_list(range, &1)) do
+        [] -> [range]
+        mappings -> mappings
+      end
+
+    IO.inspect(mappings,
+      label:
+        "#{Range.size(hd(mappings))} mappings for #{inspect(range)} (#{Range.size(range)}) in #{map_name}"
+    )
+
+    mappings ++ fetch(rest, map_name, almanac)
+
+    # [
+    #   maps
+    #   |> Enum.find_value(range, fn {src, dst} ->
+    #     Snow.Almanac.RangeMap.get(range, {src, dst})
+    #   end)
+    #   | fetch(rest, map_name, almanac)
+    # ]
   end
 end

@@ -19,7 +19,7 @@ defmodule Snow.Almanac.RangeMap do
     iex> get(1..2, {2..4, 1..3})
     1..1
   """
-  @spec get(Range.t(), {Range.t(), Range.t()}) :: Range.t()
+  @spec get(Range.t(), {Range.t(), Range.t()}) :: nil | Range.t()
   def get(range, {src, dst}) do
     if !Range.disjoint?(range, src) do
       range = intersection(range, src)
@@ -32,6 +32,14 @@ defmodule Snow.Almanac.RangeMap do
     end
   end
 
+  def get_list(range, map) do
+    case get(range, map) do
+      nil -> []
+      range -> [range]
+    end
+  end
+
+  @spec intersection(Range.t(), Range.t()) :: :error | Range.t()
   @doc """
   Calculate the intersection between two ranges.
   Crop left range so that it fits inside right range.

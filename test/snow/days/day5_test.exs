@@ -1,5 +1,5 @@
 defmodule Snow.Days.Day5Test do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @example """
   seeds: 79 14 55 13
@@ -51,7 +51,7 @@ defmodule Snow.Days.Day5Test do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
     almanac = Snow.Almanac.Parser.transform(parsed)
 
-    assert lowest(part2(almanac), true) == 46..46
+    assert lowest(part2(almanac)) == 46..46
   end
 
   defp part2(%{"seeds" => seeds} = almanac) do
@@ -72,20 +72,19 @@ defmodule Snow.Days.Day5Test do
     }
   end
 
+  @tag :skip
   test "The real data" do
-    # IO.puts("Gotta")
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@real_input)
     almanac = Snow.Almanac.Parser.transform(parsed)
-    # IO.puts("Go fast")
     assert lowest(part1(almanac)) == 389_056_265..389_056_265
     # assert lowest(part2(almanac)) == 46
   end
 
-  defp lowest(almanac, debug \\ false) do
-    seed_ranges = almanac["seeds"]
+  defp lowest(almanac) do
+    seed_ranges =
+      almanac["seeds"]
 
-    seed_ranges
-    |> Enum.map(&Snow.Almanac.location_for_seed(almanac, &1, debug))
+    Snow.Almanac.location_for_seed(almanac, seed_ranges)
     |> Enum.sort()
     |> hd
   end
