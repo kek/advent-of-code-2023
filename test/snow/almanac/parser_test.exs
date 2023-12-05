@@ -1,0 +1,77 @@
+defmodule Snow.Almanac.ParserTest do
+  use ExUnit.Case, async: true
+
+  @example """
+  seeds: 79 14 55 13
+
+  seed-to-soil map:
+  50 98 2
+  52 50 48
+
+  soil-to-fertilizer map:
+  0 15 37
+  37 52 2
+  39 0 15
+
+  fertilizer-to-water map:
+  49 53 8
+  0 11 42
+  42 0 7
+  57 7 4
+
+  water-to-light map:
+  88 18 7
+  18 25 70
+
+  light-to-temperature map:
+  45 77 23
+  81 45 19
+  68 64 13
+
+  temperature-to-humidity map:
+  0 69 1
+  1 0 69
+
+  humidity-to-location map:
+  60 56 37
+  56 93 4
+  """
+
+  test "Parsing the almanac" do
+    assert Snow.Almanac.Parser.almanac(@example) == {
+             :ok,
+             [
+               {:seeds, [map: [79, 14, 55, 13]]},
+               {:label, ["seed-to-soil"]},
+               {:map, [50, 98, 2]},
+               {:map, ~c"420"},
+               {:label, ["soil-to-fertilizer"]},
+               {:map, [0, 15, 37]},
+               {:map, [37, 52, 2]},
+               {:map, [39, 0, 15]},
+               {:label, ["fertilizer-to-water"]},
+               {:map, ~c"15\b"},
+               {:map, [0, 11, 42]},
+               {:map, [42, 0, 7]},
+               {:map, [57, 7, 4]},
+               {:label, ["water-to-light"]},
+               {:map, [88, 18, 7]},
+               {:map, [18, 25, 70]},
+               {:label, ["light-to-temperature"]},
+               {:map, [45, 77, 23]},
+               {:map, [81, 45, 19]},
+               {:map, ~c"D@\r"},
+               {:label, ["temperature-to-humidity"]},
+               {:map, [0, 69, 1]},
+               {:map, [1, 0, 69]},
+               {:label, ["humidity-to-location"]},
+               {:map, ~c"<8%"},
+               {:map, [56, 93, 4]}
+             ],
+             "",
+             %{},
+             {34, 340},
+             340
+           }
+  end
+end
