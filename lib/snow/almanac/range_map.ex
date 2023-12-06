@@ -31,7 +31,6 @@ defmodule Snow.Almanac.RangeMap do
       range = intersection(range, src)
       {dst, _} = Range.split(dst, Range.size(range))
       diff = hd(Enum.take(range, 1)) - hd(Enum.take(src, 1))
-      # IO.puts(diff)
       dst = Range.shift(dst, diff)
 
       dst
@@ -55,7 +54,7 @@ defmodule Snow.Almanac.RangeMap do
     iex> intersection(1..1, 1..1) # Same range
     1..1
     iex> intersection(1..1, 2..2) # Disjoint ranges
-    :error
+    ** (ArgumentError) Disjoint ranges: 1..1 and 2..2
     iex> intersection(1..2, 1..3) # Left range fits inside right range
     1..2
     iex> intersection(1..2, 2..2) # Right range fits in left range
@@ -67,11 +66,8 @@ defmodule Snow.Almanac.RangeMap do
     # When they have intersection and are different sizes, crop to the junction
   """
   def intersection(left, right) do
-    # diff = abs(hd(Enum.take(left, 1)) - hd(Enum.take(right, 1)))
-    # IO.inspect(diff, label: "diff between #{inspect(left)} and #{inspect(right)}")
-    # left
     if Range.disjoint?(left, right) do
-      :error
+      raise ArgumentError, "Disjoint ranges: #{inspect(left)} and #{inspect(right)}"
     else
       left_begin = hd(Enum.take(left, 1))
       left_finish = left_begin + Range.size(left) - 1
