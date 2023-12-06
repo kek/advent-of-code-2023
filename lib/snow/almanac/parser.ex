@@ -32,7 +32,7 @@ defmodule Snow.Almanac.Parser do
   )
 
   def transform([{:seeds, [{:map, seeds}]} | maps]) do
-    %{"seeds" => seeds} |> Map.merge(understand(maps))
+    {seeds, understand(maps)}
   end
 
   defp understand([]), do: %{}

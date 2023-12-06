@@ -92,15 +92,15 @@ defmodule Snow.Almanac.ParserTest do
   test "transform" do
     {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
 
-    assert %{
-             "seeds" => [79, 14, 55, 13],
-             "fertilizer-to-water" => _,
-             "humidity-to-location" => _,
-             "light-to-temperature" => _,
-             "seed-to-soil" => _,
-             "soil-to-fertilizer" => _,
-             "temperature-to-humidity" => _,
-             "water-to-light" => _
-           } = Snow.Almanac.Parser.transform(parsed)
+    assert {[79, 14, 55, 13],
+            %{
+              "fertilizer-to-water" => _,
+              "humidity-to-location" => _,
+              "light-to-temperature" => _,
+              "seed-to-soil" => _,
+              "soil-to-fertilizer" => _,
+              "temperature-to-humidity" => _,
+              "water-to-light" => _
+            }} = Snow.Almanac.Parser.transform(parsed)
   end
 end

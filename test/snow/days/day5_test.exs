@@ -39,52 +39,57 @@ defmodule Snow.Days.Day5Test do
 
   @real_input File.read!("priv/input/Day 5 input.txt")
 
-  test "The example" do
-    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
-    almanac = Snow.Almanac.Parser.transform(parsed)
-
-    assert lowest(part1(almanac)) == 35..35
-  end
-
-  test "The example part 2" do
-    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@example)
-    almanac = Snow.Almanac.Parser.transform(parsed)
-
-    # Fel - ska vara 46..x
-    assert lowest(part2(almanac)) == 56..59
-  end
-
-  defp part2(%{"seeds" => seeds} = almanac) do
-    %{
-      almanac
-      | "seeds" =>
-          seeds
-          |> Enum.chunk_every(2)
-          |> Enum.map(fn [begin, length] -> begin..(begin + length - 1) end)
-          |> List.flatten()
-    }
-  end
-
-  defp part1(%{"seeds" => seeds} = almanac) do
-    %{
-      almanac
-      | "seeds" => Enum.map(seeds, &(&1..&1))
-    }
-  end
-
-  test "The real data" do
-    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(@real_input)
-    almanac = Snow.Almanac.Parser.transform(parsed)
-    assert lowest(part1(almanac)) == 389_056_265..389_056_265
-    assert lowest(part2(almanac)) == 137_516_820..170_926_000
-  end
-
-  defp lowest(almanac) do
-    seed_ranges =
-      almanac["seeds"]
-
+  defp lowest(almanac, seed_ranges) do
     Snow.Almanac.location_for_seed(almanac, seed_ranges)
     |> Enum.sort()
     |> hd
+  end
+
+  defp as_seed_ranges(seeds) do
+    seeds
+    |> Enum.chunk_every(2)
+    |> Enum.map(fn [begin, length] -> begin..(begin + length - 1) end)
+    |> List.flatten()
+  end
+
+  defp as_single_seeds(seeds) do
+    Enum.map(seeds, &(&1..&1))
+  end
+
+  defp parse(input) do
+    {:ok, parsed, _, _, _, _} = Snow.Almanac.Parser.text(input)
+    parsed
+  end
+
+  defp part_one(input) do
+    {seeds, almanac} =
+      input
+      |> parse()
+      |> Snow.Almanac.Parser.transform()
+
+    lowest(almanac, as_single_seeds(seeds))
+  end
+
+  defp part_two(input) do
+    {seeds, almanac} =
+      input
+      |> parse()
+      |> Snow.Almanac.Parser.transform()
+
+    lowest(almanac, as_seed_ranges(seeds))
+  end
+
+  test "The example" do
+    assert part_one(@example) == 35..35
+  end
+
+  test "The example part 2" do
+    # Fel - ska vara 46..x
+    assert part_two(@example) == 56..59
+  end
+
+  test "The real data" do
+    assert part_one(@real_input) == 389_056_265..389_056_265
+    assert part_two(@real_input) == 137_516_820..170_926_000
   end
 end
