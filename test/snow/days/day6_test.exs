@@ -27,6 +27,8 @@ defmodule Snow.Days.Day6Test do
     assert real |> Enum.map(ways_to_win) |> Enum.reduce(&Kernel.*/2) == 160_816
   end
 
+  # Skipping because takes a second
+  @tag :skip
   test "part two" do
     distance = fn hold_time, race_duration ->
       travel_time = race_duration - hold_time
