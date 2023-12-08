@@ -29,12 +29,12 @@ defmodule Snow.Wasteland.Parser do
       wrap(
         times(
           wrap(
-            utf8_string([?A..?Z], 3)
+            utf8_string([?A..?Z, ?0..?9], 3)
             |> ignore(string(" = "))
             |> ignore(string("("))
-            |> utf8_string([?A..?Z], 3)
+            |> utf8_string([?A..?Z, ?0..?9], 3)
             |> ignore(string(", "))
-            |> utf8_string([?A..?Z], 3)
+            |> utf8_string([?A..?Z, ?0..?9], 3)
             |> ignore(string(")"))
             |> ignore(string("\n"))
           )

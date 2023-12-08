@@ -79,4 +79,40 @@ defmodule Snow.Days.Day8Test do
     assert Enum.count(Snow.Wasteland.path(instructions, instructions, "AAA", "ZZZ", network)) ==
              21251
   end
+
+  @example3 """
+  LR
+
+  11A = (11B, XXX)
+  11B = (XXX, 11Z)
+  11Z = (11B, XXX)
+  22A = (22B, XXX)
+  22B = (22C, 22C)
+  22C = (22Z, 22Z)
+  22Z = (22B, 22B)
+  XXX = (XXX, XXX)
+  """
+  test "Find the number of steps from ??A to ??Z for part 2" do
+    {instructions, network} = Snow.Wasteland.Parser.read(@example3)
+
+    from =
+      Map.keys(network)
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    assert Snow.Wasteland.path_multi(0, instructions, instructions, from, network) ==
+             6
+  end
+
+  @tag timeout: :infinity
+  test "Find the number of steps from ??A to ??Z for part 2 real data" do
+    # IO.puts("Hey")
+    {instructions, network} = Snow.Wasteland.Parser.read(@real_input)
+
+    from =
+      Map.keys(network)
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    assert Snow.Wasteland.path_multi(0, instructions, instructions, from, network) ==
+             -1
+  end
 end
