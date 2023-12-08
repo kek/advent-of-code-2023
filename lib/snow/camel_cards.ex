@@ -1,7 +1,69 @@
 defmodule Snow.CamelCards do
-  def compare(left, right) do
+  def joke([{x, 4}, {11, 1}]), do: [{x, 5}]
+  def joke([{x, 3}, {11, 2}]), do: [{x, 5}]
+  def joke([{11, 3}, {x, 1}]), do: [{x, 5}]
+  def joke([{11, 4}, {x, 1}]), do: [{x, 5}]
+  def joke([{11, 3}, {x, 2}]), do: [{x, 5}]
+  def joke([{11, 3}, {x, 1}, y]), do: [{x, 4}, y]
+  def joke([{11, 5}]), do: [{11, 5}]
+  def joke([{11, 2}, {x, 2}, y]), do: [{x, 4}, y]
+  def joke([{x, 2}, {y, 2}, y]), do: [{x, 4}, y]
+  def joke([{x, 3}, {11, 1}, y]), do: [{x, 4}, y]
+  def joke([{x, 3}, y, {11, 1}]), do: [{x, 4}, y]
+  def joke([{x, 2}, {11, 1}, y, z]), do: [{x, 3}, y, z]
+  def joke([{x, 2}, y, {11, 1}, z]), do: [{x, 3}, y, z]
+  # Should not matter which to pick:
+  def joke([{x, 2}, {y, 2}, {11, 1}]), do: [{x, 3}, {y, 2}]
+  def joke([{a, 1}, b, {11, 1}, c, d]), do: [{a, 2}, b, c, d]
+  def joke([{a, 1}, b, c, {11, 1}, d]), do: [{a, 2}, b, c, d]
+  def joke([{a, 1}, {11, 1}, b, c, d]), do: [{a, 2}, b, c, d]
+  def joke([{11, 1}, {a, 1}, b, c, d]), do: [{a, 2}, b, c, d]
+  def joke([{a, 2}, {11, 2}, b]), do: [{a, 4}, b]
+  def joke([{11, 2}, {a, 1}, b, c]), do: [{a, 3}, b, c]
+  def joke([{a, 2}, b, c, {11, 1}]), do: [{a, 3}, b, c]
+
+  def joke([{a, _}, {b, _}, {c, _}, {d, _}, {e, _}] = hand)
+      when a != 11 and b != 11 and c != 11 and d != 11 and e != 11,
+      do: hand
+
+  def joke([{a, _}, {b, _}, {c, _}, {d, _}] = hand)
+      when a != 11 and b != 11 and c != 11 and d != 11,
+      do: hand
+
+  def joke([{a, _}, {b, _}, {c, _}] = hand)
+      when a != 11 and b != 11 and c != 11,
+      do: hand
+
+  def joke([{a, _}, {b, _}] = hand)
+      when a != 11 and b != 11,
+      do: hand
+
+  # XXJJY
+  # def joke(x), do: x
+
+  def compare(left, right, joking? \\ false) do
     lg = group(left)
     rg = group(right)
+
+    {lg, left, rg, right} =
+      if joking? do
+        left =
+          Enum.map(left, fn item ->
+            if item == 11, do: 0, else: item
+          end)
+
+        right =
+          Enum.map(right, fn item ->
+            if item == 11, do: 0, else: item
+          end)
+
+        lg = joke(lg)
+        rg = joke(rg)
+
+        {lg, left, rg, right}
+      else
+        {lg, left, rg, right}
+      end
 
     cond do
       Enum.count(lg) < Enum.count(rg) ->

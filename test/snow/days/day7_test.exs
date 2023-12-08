@@ -26,8 +26,8 @@ defmodule Snow.Days.Day7Test do
   # T55J5  4
   # QQQJA  5
 
-  defp assert_order(hands, order) do
-    actual = Enum.sort(Enum.map(hands, &hand/1), &CamelCards.compare/2)
+  defp assert_order(hands, order, joking? \\ false) do
+    actual = Enum.sort(Enum.map(hands, &hand/1), fn l, r -> CamelCards.compare(l, r, joking?) end)
     expected = Enum.map(order, &hand/1)
 
     if actual == expected do
@@ -35,7 +35,8 @@ defmodule Snow.Days.Day7Test do
     else
       raise ExUnit.AssertionError,
         message:
-          "Expected #{CamelCards.render_hands(expected)}, got #{CamelCards.render_hands(actual)}"
+          "Expected #{CamelCards.render_hands(expected)},\n" <>
+            "     got #{CamelCards.render_hands(actual)}"
     end
   end
 
@@ -94,7 +95,7 @@ defmodule Snow.Days.Day7Test do
 
   def cleanup([{:round, [hand: hand, bid: [bid]]} | t]), do: [{hand, bid} | cleanup(t)]
 
-  def ranking(input) do
+  def ranking(input, joking? \\ false) do
     {:ok, hands_and_bids, _, _, _, _} = Snow.CamelCards.Parser.hands_list(input)
 
     ranking =
@@ -102,7 +103,7 @@ defmodule Snow.Days.Day7Test do
       |> cleanup
       # |> IO.inspect(label: :round)
       |> Enum.sort(fn {l, _}, {r, _} ->
-        Snow.CamelCards.compare(l, r)
+        Snow.CamelCards.compare(l, r, joking?)
       end)
 
     ranking
@@ -133,5 +134,19 @@ defmodule Snow.Days.Day7Test do
 
   test "example part one" do
     assert score(ranking(@example)) == 6440
+  end
+
+  test "example part two" do
+    assert_order(
+      ["32T3K", "T55J5", "KK677", "KTJJT", "QQQJA"],
+      ["32T3K", "KK677", "T55J5", "QQQJA", "KTJJT"],
+      true
+    )
+
+    assert score(ranking(@example, true)) == 5905
+  end
+
+  test "real part two" do
+    assert score(ranking(@real_data, true)) == 248_256_639
   end
 end
