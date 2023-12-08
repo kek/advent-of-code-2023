@@ -20,12 +20,6 @@ defmodule Snow.Days.Day7Test do
     end
   end
 
-  # 32T3K  1
-  # KTJJT  2
-  # KK677  3
-  # T55J5  4
-  # QQQJA  5
-
   defp assert_order(hands, order, joking? \\ false) do
     actual = Enum.sort(Enum.map(hands, &hand/1), fn l, r -> CamelCards.compare(l, r, joking?) end)
     expected = Enum.map(order, &hand/1)
@@ -98,22 +92,17 @@ defmodule Snow.Days.Day7Test do
   def ranking(input, joking? \\ false) do
     {:ok, hands_and_bids, _, _, _, _} = Snow.CamelCards.Parser.hands_list(input)
 
-    ranking =
-      hands_and_bids
-      |> cleanup
-      # |> IO.inspect(label: :round)
-      |> Enum.sort(fn {l, _}, {r, _} ->
-        Snow.CamelCards.compare(l, r, joking?)
-      end)
-
-    ranking
+    hands_and_bids
+    |> cleanup
+    |> Enum.sort(fn {l, _}, {r, _} ->
+      Snow.CamelCards.compare(l, r, joking?)
+    end)
   end
 
   def score(ranking) do
     ranks = 1..Enum.count(ranking)
 
     Enum.zip([ranks, ranking])
-    # |> IO.inspect(label: "zip")
     |> Enum.map(fn {rank, {_, bid}} -> rank * bid end)
     |> Enum.sum()
   end
