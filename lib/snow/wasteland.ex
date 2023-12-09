@@ -74,7 +74,7 @@ defmodule Snow.Wasteland do
       end
     end)
 
-    stops = Agent.get(keeper, fn stops -> MapSet.new(stops) end)
+    stops = Agent.get(keeper, fn stops -> MapSet.new(stops) end, :infinity)
     stops
   end
 
@@ -119,6 +119,11 @@ defmodule Snow.Wasteland do
                 [] -> IO.puts("No solution found for #{i}")
                 [n] -> IO.puts("The solution is #{n + 1}")
               end
+
+              state =
+                Enum.reduce(state, 0..(i - 1), fn elem, acc ->
+                  Map.delete(acc, elem)
+                end)
 
               Map.put(state, i, sets)
 
