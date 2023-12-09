@@ -37,6 +37,29 @@ defmodule Snow.Days.Day8Test do
               }}
   end
 
+  test "Read the file - multi - part two" do
+    assert Snow.Wasteland.ParserMulti.read(@example) ==
+             {[:right, :left],
+              {%{
+                 "AAA" => "BBB",
+                 "BBB" => "DDD",
+                 "CCC" => "ZZZ",
+                 "DDD" => "DDD",
+                 "EEE" => "EEE",
+                 "GGG" => "GGG",
+                 "ZZZ" => "ZZZ"
+               },
+               %{
+                 "AAA" => "CCC",
+                 "BBB" => "EEE",
+                 "CCC" => "GGG",
+                 "DDD" => "DDD",
+                 "EEE" => "EEE",
+                 "GGG" => "GGG",
+                 "ZZZ" => "ZZZ"
+               }}}
+  end
+
   test "Path" do
     assert Snow.Wasteland.path([:right], [:right], "AAA", "ZZZ", %{"AAA" => {"BBB", "ZZZ"}}) == [
              "ZZZ"
@@ -92,27 +115,31 @@ defmodule Snow.Days.Day8Test do
   22Z = (22B, 22B)
   XXX = (XXX, XXX)
   """
-  test "Find the number of steps from ??A to ??Z for part 2" do
-    {instructions, network} = Snow.Wasteland.Parser.read(@example3)
+
+  test "Find the number of steps from ??A to ??Z for part 2 example" do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
 
     from =
-      Map.keys(network)
+      Map.keys(elem(network, 0))
       |> Enum.filter(&String.ends_with?(&1, "A"))
 
-    assert Snow.Wasteland.path_multi(0, instructions, instructions, from, network) ==
+    assert Snow.Wasteland.path_multi(
+             instructions,
+             from,
+             network
+           ) ==
              6
   end
 
   @tag timeout: :infinity
   test "Find the number of steps from ??A to ??Z for part 2 real data" do
-    # IO.puts("Hey")
-    {instructions, network} = Snow.Wasteland.Parser.read(@real_input)
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
 
     from =
-      Map.keys(network)
+      Map.keys(elem(network, 0))
       |> Enum.filter(&String.ends_with?(&1, "A"))
 
-    assert Snow.Wasteland.path_multi(0, instructions, instructions, from, network) ==
+    assert Snow.Wasteland.path_multi(instructions, from, network) ==
              -1
   end
 end

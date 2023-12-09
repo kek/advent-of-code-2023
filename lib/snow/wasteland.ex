@@ -17,45 +17,49 @@ defmodule Snow.Wasteland do
     end
   end
 
-  def path_multi(i, [], original_instructions, positions, network) do
-    path_multi(i, original_instructions, original_instructions, positions, network)
+  def path_multi(instructions, positions, network) do
+    Stream.cycle(instructions)
+    |> Enum.reduce_while({0, positions}, fn instruction, {i, positions} ->
+      # if rem(i, 100_0000) == 0 do
+      #   IO.puts(i)
+      # end
+
+      if Enum.all?(positions, &String.ends_with?(&1, "Z")) do
+        {:halt, i}
+      else
+        {:cont, {i + 1, step(instruction, positions, network)}}
+      end
+    end)
   end
 
-  def path_multi(i, [instr | rest_instructions], original_instructions, positions, network) do
-    if rem(i, 100_0000) == 0 do
-      IO.puts(i)
-    end
+  # def path_multi(i, [], original_instructions, positions, network) do
+  #   path_multi(i, original_instructions, original_instructions, positions, network)
+  # end
 
-    # IO.puts("#{Enum.count(positions)} positions now")
+  # def path_multi(
+  #       i,
+  #       [instr | rest_instructions],
+  #       original_instructions,
+  #       positions,
+  #       {left_network, right_network} = network
+  #     ) do
+  #   # if rem(i, 100_0000) == 0, do: IO.puts(i)
 
-    new_positions =
-      Enum.map(positions, fn position ->
-        {left, right} =
-          network[position]
+  #   new_positions = step(instr, positions, network)
 
-        # |> IO.inspect()
+  #   if Enum.all?(new_positions, &String.ends_with?(&1, "Z")) do
+  #     i
+  #   else
+  #     path_multi(
+  #       i + 1,
+  #       rest_instructions,
+  #       original_instructions,
+  #       new_positions,
+  #       {left_network, right_network}
+  #     )
+  #   end
+  # end
 
-        case instr do
-          :left -> left
-          :right -> right
-        end
-
-        # |> IO.inspect(label: "Going #{inspect(instr)} to")
-      end)
-
-    # |> IO.inspect(label: "new_positions!!!!")
-
-    # IO.puts("#{Enum.count(new_positions)} new positions now")
-
-    if Enum.all?(new_positions, &String.ends_with?(&1, "Z")) do
-      i
-    else
-      path_multi(i + 1, rest_instructions, original_instructions, new_positions, network)
-    end
-
-    # |> IO.inspect(label: "New pos")
-    # |> tap(fn x ->
-    #   IO.puts(Enum.count(x))
-    # end)
-  end
+  def step(:left, positions, {branch, _}), do: Enum.map(positions, &branch[&1])
+  def step(:right, positions, {_, branch}), do: Enum.map(positions, &branch[&1])
 end
