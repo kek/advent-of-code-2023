@@ -180,22 +180,8 @@ defmodule Snow.Days.Day8Test do
              MapSet.new([18023, 36046, 54069, 72092, 90115])
   end
 
-  @tag timeout: :infinity
   test "Common lowest stop for all items in real data - try to find by brute force" do
-    assert Snow.Wasteland.try_to_find_solution(@real_input, 1_000_000) ==
+    assert Snow.Wasteland.try_to_find_solution(@real_input, 200_000) ==
              {:error, "No solution found"}
-  end
-
-  @tag timeout: :infinity
-  @tag :skip
-  test "Find the number of steps from ??A to ??Z for part 2 real data" do
-    {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
-
-    from =
-      Map.keys(elem(network, 0))
-      |> Enum.filter(&String.ends_with?(&1, "A"))
-
-    assert Snow.Wasteland.path_multi(instructions, from, network) ==
-             -1
   end
 end

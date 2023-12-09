@@ -104,23 +104,18 @@ defmodule Snow.Wasteland do
         state =
           case Map.get(state, i) do
             nil ->
-              # IO.puts("Got first item for #{i}")
               Map.put(state, i, [set])
 
             items when length(items) == how_many - 1 ->
-              # IO.puts("Got all items for #{i}")
               sets = [set | items]
-              common_stops_sets = Enum.reduce(sets, &MapSet.intersection/2)
 
-              # IO.puts("Sorting")
-
-              common_stops_sets
-              |> Enum.sort()
-              |> Enum.take(1)
-              |> case do
-                [] -> IO.puts("Reached #{i}, starting over?")
-                [n] -> IO.puts("The solution is #{n}")
-              end
+              # Enum.reduce(sets, &MapSet.intersection/2)
+              # |> Enum.sort()
+              # |> Enum.take(1)
+              # |> case do
+              #   [] -> nil
+              #   [n] -> IO.puts("The solution is #{n}")
+              # end
 
               state =
                 Enum.reduce(state, 0..(i - 1), fn elem, acc ->
@@ -130,10 +125,6 @@ defmodule Snow.Wasteland do
               Map.put(state, i, sets)
 
             items ->
-              # IO.puts(
-              #   "Got another item for #{i}, in addition to #{Enum.count(items)} previous items"
-              # )
-
               Map.put(state, i, [set | items])
           end
 
@@ -145,13 +136,10 @@ defmodule Snow.Wasteland do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
 
     instructions = Stream.cycle(instructions)
-    # IO.puts("Taking first #{max_steps} instructions")
 
     entrypoints =
       Map.keys(elem(network, 0))
       |> Enum.filter(&String.ends_with?(&1, "A"))
-
-    # IO.puts("Calculating stops sets")
 
     consumer = spawn(fn -> consume(%{}, Enum.count(entrypoints)) end)
 
@@ -163,10 +151,7 @@ defmodule Snow.Wasteland do
       end)
       |> Enum.map(&Task.await(&1, :infinity))
 
-    # IO.puts("Calculating intersections")
     common_stops_sets = Enum.reduce(stops_sets, &MapSet.intersection/2)
-
-    # IO.puts("Sorting")
 
     common_stops_sets
     |> Enum.sort()
@@ -196,7 +181,6 @@ defmodule Snow.Wasteland do
     |> Enum.map(fn [first, second] ->
       {first, second - first}
     end)
-    |> IO.inspect()
     |> Enum.map(&elem(&1, 1))
     |> lcm()
   end
