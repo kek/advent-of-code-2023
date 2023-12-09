@@ -56,12 +56,14 @@ defmodule Snow.Wasteland do
           :right -> right[pos]
         end
 
-      if ends_in_z(pos) do
-        Agent.update(keeper, fn stops -> [i | stops] end)
-      end
-
       if i < max_steps do
-        {:cont, {i + 1, pos}}
+        i = i + 1
+
+        if ends_in_z(pos) do
+          Agent.update(keeper, fn stops -> [i | stops] end)
+        end
+
+        {:cont, {i, pos}}
       else
         if consumer do
           Agent.cast(keeper, fn stops ->
@@ -116,8 +118,8 @@ defmodule Snow.Wasteland do
               |> Enum.sort()
               |> Enum.take(1)
               |> case do
-                [] -> IO.puts("No solution found for #{i}")
-                [n] -> IO.puts("The solution is #{n + 1}")
+                [] -> IO.puts("Reached #{i}, starting over?")
+                [n] -> IO.puts("The solution is #{n}")
               end
 
               state =
@@ -171,7 +173,60 @@ defmodule Snow.Wasteland do
     |> Enum.take(1)
     |> case do
       [] -> {:error, "No solution found"}
-      [n] -> {:ok, n + 1}
+      [n] -> {:ok, n}
     end
   end
+
+  def solution_by_ring_length(data) do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
+    instructions = Stream.cycle(instructions)
+
+    entrypoints =
+      Map.keys(elem(network, 0))
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    Enum.map(entrypoints, fn pos ->
+      Task.async(fn ->
+        Snow.Wasteland.stops_for(instructions, 100_000, pos, network)
+      end)
+    end)
+    |> Enum.map(&Task.await(&1, :infinity))
+    |> Enum.map(&Enum.sort/1)
+    |> Enum.map(&Enum.take(&1, 2))
+    |> Enum.map(fn [first, second] ->
+      {first, second - first}
+    end)
+    |> IO.inspect()
+    |> Enum.map(&elem(&1, 1))
+    |> lcm()
+  end
+
+  @doc """
+  Find the lowest number which has all of items in the list as factors.
+  Thanks Microsoft
+
+  ### Examples
+
+  iex> import Snow.Wasteland
+  iex> lcm([2,3])
+  6
+  iex> lcm([2,3,6])
+  6
+  """
+  def lcm(numbers) do
+    lcm(numbers, 1)
+  end
+
+  defp lcm([], acc), do: acc
+
+  defp lcm([head | tail], acc) do
+    lcm(tail, lcm(head, acc))
+  end
+
+  defp lcm(a, b) do
+    div(a * b, gcd(a, b))
+  end
+
+  defp gcd(a, 0), do: a
+  defp gcd(a, b), do: gcd(b, rem(a, b))
 end

@@ -1,5 +1,6 @@
 defmodule Snow.Days.Day8Test do
   use ExUnit.Case
+  doctest Snow.Wasteland
 
   @example """
   RL
@@ -132,7 +133,15 @@ defmodule Snow.Days.Day8Test do
   end
 
   test "Common lowest stop for all items in example" do
-    assert Snow.Wasteland.try_to_find_solution(@example3) == {:ok, 6}
+    assert Snow.Wasteland.try_to_find_solution(@example3, 99999) == {:ok, 6}
+  end
+
+  test "Common lowest stop for all items in example - new algorithm" do
+    assert Snow.Wasteland.solution_by_ring_length(@example3) == 6
+  end
+
+  test "Common lowest stop for all items in real data - new algorithm" do
+    assert Snow.Wasteland.solution_by_ring_length(@real_input) == 11_678_319_315_857
   end
 
   test "Stops for a particular item" do
@@ -140,10 +149,10 @@ defmodule Snow.Days.Day8Test do
     instructions = Stream.cycle(instructions)
 
     assert Snow.Wasteland.stops_for(instructions, 10, "11A", network) ==
-             MapSet.new([1, 3, 5, 7, 9])
+             MapSet.new([2, 4, 6, 8, 10])
 
     assert Snow.Wasteland.stops_for(instructions, 10, "22A", network) ==
-             MapSet.new([2, 5, 8])
+             MapSet.new([3, 6, 9])
   end
 
   test "Stops for all items in real data" do
@@ -153,22 +162,22 @@ defmodule Snow.Days.Day8Test do
     max_steps = 100_000
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "VNA", network) ==
-             MapSet.new([15870, 31741, 47612, 63483, 79354, 95225])
+             MapSet.new([15871, 31742, 47613, 63484, 79355, 95226])
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "QJA", network) ==
-             MapSet.new([14256, 28513, 42770, 57027, 71284, 85541, 99798])
+             MapSet.new([14257, 28514, 42771, 57028, 71285, 85542, 99799])
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "JPA", network) ==
-             MapSet.new([11566, 23133, 34700, 46267, 57834, 69401, 80968, 92535])
+             MapSet.new([11567, 23134, 34701, 46268, 57835, 69402, 80969, 92536])
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "AAA", network) ==
-             MapSet.new([21250, 42501, 63752, 85003])
+             MapSet.new([21251, 42502, 63753, 85004])
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "DPA", network) ==
-             MapSet.new([16408, 32817, 49226, 65635, 82044, 98453])
+             MapSet.new([16409, 32818, 49227, 65636, 82045, 98454])
 
     assert Snow.Wasteland.stops_for(instructions, max_steps, "DBA", network) ==
-             MapSet.new([18022, 36045, 54068, 72091, 90114])
+             MapSet.new([18023, 36046, 54069, 72092, 90115])
   end
 
   @tag timeout: :infinity
