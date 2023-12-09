@@ -34,13 +34,20 @@ defmodule Snow.Wasteland do
     end
   end
 
-  def stops_for(instructions, max_steps, position, {left, right}) do
+  def stops_for(instructions, max_steps, position, {left, right}, consumer \\ nil) do
     {:ok, keeper} = Agent.start_link(fn -> [] end)
 
     instructions
     |> Enum.reduce_while({0, position}, fn instruction, {i, pos} ->
-      if rem(i, 1_000_000) == 0 and i > 0 do
-        IO.inspect(i, label: "Progress for #{position}")
+      if rem(i, 100_000_000) == 0 and i > 0 do
+        # IO.inspect(div(i, 1_000_000), label: "Progress for #{position} (millions)")
+
+        if consumer do
+          Agent.cast(keeper, fn stops ->
+            send(consumer, {i, MapSet.new(stops)})
+            stops
+          end)
+        end
       end
 
       pos =
@@ -56,12 +63,19 @@ defmodule Snow.Wasteland do
       if i < max_steps do
         {:cont, {i + 1, pos}}
       else
+        if consumer do
+          Agent.cast(keeper, fn stops ->
+            send(consumer, {i, MapSet.new(stops)})
+            stops
+          end)
+        end
+
         {:halt, "No solution was found"}
       end
     end)
 
-    stops = Agent.get(keeper, fn stops -> stops end)
-    MapSet.new(stops)
+    stops = Agent.get(keeper, fn stops -> MapSet.new(stops) end)
+    stops
   end
 
   def path_multi(instructions, positions, network) do
@@ -78,34 +92,6 @@ defmodule Snow.Wasteland do
       end
     end)
   end
-
-  # def path_multi(i, [], original_instructions, positions, network) do
-  #   path_multi(i, original_instructions, original_instructions, positions, network)
-  # end
-
-  # def path_multi(
-  #       i,
-  #       [instr | rest_instructions],
-  #       original_instructions,
-  #       positions,
-  #       {left_network, right_network} = network
-  #     ) do
-  #   # if rem(i, 100_0000) == 0, do: IO.puts(i)
-
-  #   new_positions = step(instr, positions, network)
-
-  #   if Enum.all?(new_positions, &String.ends_with?(&1, "Z")) do
-  #     i
-  #   else
-  #     path_multi(
-  #       i + 1,
-  #       rest_instructions,
-  #       original_instructions,
-  #       new_positions,
-  #       {left_network, right_network}
-  #     )
-  #   end
-  # end
 
   def step(:left, positions, {branch, _}), do: Enum.map(positions, &branch[&1])
   def step(:right, positions, {_, branch}), do: Enum.map(positions, &branch[&1])

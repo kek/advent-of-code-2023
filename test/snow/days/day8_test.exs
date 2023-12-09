@@ -167,7 +167,45 @@ defmodule Snow.Days.Day8Test do
              MapSet.new([18022, 36045, 54068, 72091, 90114])
   end
 
-  def solution(data, max_steps \\ 100_000) do
+  def consume(state, how_many) do
+    receive do
+      {i, set} ->
+        state =
+          case Map.get(state, i) do
+            nil ->
+              # IO.puts("Got first item for #{i}")
+              Map.put(state, i, [set])
+
+            items when length(items) == how_many - 1 ->
+              # IO.puts("Got all items for #{i}")
+              sets = [set | items]
+              common_stops_sets = Enum.reduce(sets, &MapSet.intersection/2)
+
+              # IO.puts("Sorting")
+
+              common_stops_sets
+              |> Enum.sort()
+              |> Enum.take(1)
+              |> case do
+                [] -> IO.puts("No solution found for #{i}")
+                [n] -> IO.puts("The solution is #{n + 1}")
+              end
+
+              Map.put(state, i, sets)
+
+            items ->
+              # IO.puts(
+              #   "Got another item for #{i}, in addition to #{Enum.count(items)} previous items"
+              # )
+
+              Map.put(state, i, [set | items])
+          end
+
+        consume(state, how_many)
+    end
+  end
+
+  def try_to_find_solution(data, max_steps \\ 100_000) do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
 
     instructions = Stream.cycle(instructions)
@@ -179,9 +217,13 @@ defmodule Snow.Days.Day8Test do
 
     IO.puts("Calculating stops sets")
 
+    consumer = spawn(fn -> consume(%{}, Enum.count(entrypoints)) end)
+
     stops_sets =
       Enum.map(entrypoints, fn pos ->
-        Task.async(fn -> Snow.Wasteland.stops_for(instructions, max_steps, pos, network) end)
+        Task.async(fn ->
+          Snow.Wasteland.stops_for(instructions, max_steps, pos, network, consumer)
+        end)
       end)
       |> Enum.map(&Task.await(&1, :infinity))
 
@@ -194,18 +236,18 @@ defmodule Snow.Days.Day8Test do
     |> Enum.sort()
     |> Enum.take(1)
     |> case do
-      [] -> "No solution found"
-      [n] -> n + 1
+      [] -> {:error, "No solution found"}
+      [n] -> {:ok, n + 1}
     end
   end
 
   test "Common lowest stop for all items in example" do
-    assert solution(@example3) == 6
+    assert try_to_find_solution(@example3) == {:ok, 6}
   end
 
   @tag timeout: :infinity
   test "Common lowest stop for all items in real data" do
-    # assert solution(@real_input, 1_000_000_000) == -1
+    assert try_to_find_solution(@real_input, 10_000_000_000_000) == {:ok, 0}
   end
 
   @tag timeout: :infinity
