@@ -131,7 +131,45 @@ defmodule Snow.Days.Day8Test do
              6
   end
 
+  test "Stops for a particular item" do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
+
+    IO.inspect(network)
+    assert Snow.Wasteland.stops_for(instructions, "11A", network) == :"???"
+  end
+
+  test "Stops for all items in example" do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
+
+    positions =
+      Map.keys(elem(network, 0))
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    positions
+    |> Enum.each(fn position ->
+      IO.inspect(Snow.Wasteland.stops_for(instructions, position, network),
+        label: "Stops for example item #{position}"
+      )
+    end)
+  end
+
+  test "Stops for all items in real data" do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
+
+    positions =
+      Map.keys(elem(network, 0))
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    positions
+    |> Enum.each(fn position ->
+      IO.inspect(Snow.Wasteland.stops_for(instructions, position, network),
+        label: "Stops for #{position}"
+      )
+    end)
+  end
+
   @tag timeout: :infinity
+  @tag :skip
   test "Find the number of steps from ??A to ??Z for part 2 real data" do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
 

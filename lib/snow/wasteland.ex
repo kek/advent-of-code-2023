@@ -17,6 +17,29 @@ defmodule Snow.Wasteland do
     end
   end
 
+  def stops_for(instructions, position, {left, right}) do
+    {_iterations, _end_at, stops} =
+      instructions
+      |> Enum.reduce({0, position, []}, fn instruction, {i, pos, stops} ->
+        pos =
+          case instruction do
+            :left -> left[pos]
+            :right -> right[pos]
+          end
+
+        stops =
+          if String.ends_with?(pos, "Z") do
+            [i | stops]
+          else
+            stops
+          end
+
+        {i + 1, pos, stops}
+      end)
+
+    stops
+  end
+
   def path_multi(instructions, positions, network) do
     Stream.cycle(instructions)
     |> Enum.reduce_while({0, positions}, fn instruction, {i, positions} ->
