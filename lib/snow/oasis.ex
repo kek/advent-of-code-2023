@@ -18,9 +18,24 @@ defmodule Snow.Oasis do
     end
   end
 
+  def previous(line) do
+    if all?(line, &(&1 == 0)) do
+      0
+    else
+      below = line |> spacings()
+      (line |> hd()) - previous(below)
+    end
+  end
+
   def solution(lines) do
     lines
     |> map(&next/1)
+    |> sum()
+  end
+
+  def solution_part_two(lines) do
+    lines
+    |> map(&previous/1)
     |> sum()
   end
 end

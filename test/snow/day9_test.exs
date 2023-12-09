@@ -34,4 +34,14 @@ defmodule Snow.Days.Day9Test do
   test "solution for real" do
     assert solution(@real) == 1_798_691_765
   end
+
+  test "previous" do
+    assert previous(Enum.at(@example, 0)) == -3
+    assert previous(Enum.at(@example, 1)) == 0
+    assert previous(Enum.at(@example, 2)) == 5
+  end
+
+  test "solution for real part two" do
+    assert solution_part_two(@real) == 1104
+  end
 end
