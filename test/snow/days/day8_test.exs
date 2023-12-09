@@ -131,6 +131,10 @@ defmodule Snow.Days.Day8Test do
              6
   end
 
+  test "Common lowest stop for all items in example" do
+    assert Snow.Wasteland.try_to_find_solution(@example3) == {:ok, 6}
+  end
+
   test "Stops for a particular item" do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
     instructions = Stream.cycle(instructions)
@@ -167,87 +171,10 @@ defmodule Snow.Days.Day8Test do
              MapSet.new([18022, 36045, 54068, 72091, 90114])
   end
 
-  def consume(state, how_many) do
-    receive do
-      {i, set} ->
-        state =
-          case Map.get(state, i) do
-            nil ->
-              # IO.puts("Got first item for #{i}")
-              Map.put(state, i, [set])
-
-            items when length(items) == how_many - 1 ->
-              # IO.puts("Got all items for #{i}")
-              sets = [set | items]
-              common_stops_sets = Enum.reduce(sets, &MapSet.intersection/2)
-
-              # IO.puts("Sorting")
-
-              common_stops_sets
-              |> Enum.sort()
-              |> Enum.take(1)
-              |> case do
-                [] -> IO.puts("No solution found for #{i}")
-                [n] -> IO.puts("The solution is #{n + 1}")
-              end
-
-              Map.put(state, i, sets)
-
-            items ->
-              # IO.puts(
-              #   "Got another item for #{i}, in addition to #{Enum.count(items)} previous items"
-              # )
-
-              Map.put(state, i, [set | items])
-          end
-
-        consume(state, how_many)
-    end
-  end
-
-  def try_to_find_solution(data, max_steps \\ 100_000) do
-    {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
-
-    instructions = Stream.cycle(instructions)
-    IO.puts("Taking first #{max_steps} instructions")
-
-    entrypoints =
-      Map.keys(elem(network, 0))
-      |> Enum.filter(&String.ends_with?(&1, "A"))
-
-    IO.puts("Calculating stops sets")
-
-    consumer = spawn(fn -> consume(%{}, Enum.count(entrypoints)) end)
-
-    stops_sets =
-      Enum.map(entrypoints, fn pos ->
-        Task.async(fn ->
-          Snow.Wasteland.stops_for(instructions, max_steps, pos, network, consumer)
-        end)
-      end)
-      |> Enum.map(&Task.await(&1, :infinity))
-
-    IO.puts("Calculating intersections")
-    common_stops_sets = Enum.reduce(stops_sets, &MapSet.intersection/2)
-
-    IO.puts("Sorting")
-
-    common_stops_sets
-    |> Enum.sort()
-    |> Enum.take(1)
-    |> case do
-      [] -> {:error, "No solution found"}
-      [n] -> {:ok, n + 1}
-    end
-  end
-
-  test "Common lowest stop for all items in example" do
-    assert try_to_find_solution(@example3) == {:ok, 6}
-  end
-
   @tag timeout: :infinity
-  test "Common lowest stop for all items in real data" do
-    assert try_to_find_solution(@real_input, 10_000_000_000_000) == {:ok, 0}
+  test "Common lowest stop for all items in real data - try to find by brute force" do
+    assert Snow.Wasteland.try_to_find_solution(@real_input, 1_000_000) ==
+             {:error, "No solution found"}
   end
 
   @tag timeout: :infinity

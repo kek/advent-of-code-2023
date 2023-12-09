@@ -95,4 +95,78 @@ defmodule Snow.Wasteland do
 
   def step(:left, positions, {branch, _}), do: Enum.map(positions, &branch[&1])
   def step(:right, positions, {_, branch}), do: Enum.map(positions, &branch[&1])
+
+  def consume(state, how_many) do
+    receive do
+      {i, set} ->
+        state =
+          case Map.get(state, i) do
+            nil ->
+              # IO.puts("Got first item for #{i}")
+              Map.put(state, i, [set])
+
+            items when length(items) == how_many - 1 ->
+              # IO.puts("Got all items for #{i}")
+              sets = [set | items]
+              common_stops_sets = Enum.reduce(sets, &MapSet.intersection/2)
+
+              # IO.puts("Sorting")
+
+              common_stops_sets
+              |> Enum.sort()
+              |> Enum.take(1)
+              |> case do
+                [] -> IO.puts("No solution found for #{i}")
+                [n] -> IO.puts("The solution is #{n + 1}")
+              end
+
+              Map.put(state, i, sets)
+
+            items ->
+              # IO.puts(
+              #   "Got another item for #{i}, in addition to #{Enum.count(items)} previous items"
+              # )
+
+              Map.put(state, i, [set | items])
+          end
+
+        consume(state, how_many)
+    end
+  end
+
+  def try_to_find_solution(data, max_steps \\ 100_000) do
+    {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
+
+    instructions = Stream.cycle(instructions)
+    # IO.puts("Taking first #{max_steps} instructions")
+
+    entrypoints =
+      Map.keys(elem(network, 0))
+      |> Enum.filter(&String.ends_with?(&1, "A"))
+
+    # IO.puts("Calculating stops sets")
+
+    consumer = spawn(fn -> consume(%{}, Enum.count(entrypoints)) end)
+
+    stops_sets =
+      Enum.map(entrypoints, fn pos ->
+        Task.async(fn ->
+          Snow.Wasteland.stops_for(instructions, max_steps, pos, network, consumer)
+        end)
+      end)
+      |> Enum.map(&Task.await(&1, :infinity))
+
+    # IO.puts("Calculating intersections")
+    common_stops_sets = Enum.reduce(stops_sets, &MapSet.intersection/2)
+
+    # IO.puts("Sorting")
+
+    common_stops_sets
+    |> Enum.sort()
+    |> Enum.take(1)
+    |> case do
+      [] -> {:error, "No solution found"}
+      [n] -> {:ok, n + 1}
+    end
+  end
 end
