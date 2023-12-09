@@ -37,7 +37,7 @@ defmodule Snow.Wasteland do
         {i + 1, pos, stops}
       end)
 
-    stops
+    MapSet.new(stops)
   end
 
   def path_multi(instructions, positions, network) do
