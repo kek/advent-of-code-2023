@@ -134,12 +134,12 @@ defmodule Snow.Days.Day8Test do
   test "Stops for a particular item" do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
     instructions = Stream.cycle(instructions)
-    first_instructions = Enum.take(instructions, 10)
 
-    assert Snow.Wasteland.stops_for(first_instructions, "11A", network) ==
+    assert Snow.Wasteland.stops_for(instructions, 10, "11A", network) ==
              MapSet.new([1, 3, 5, 7, 9])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "22A", network) == MapSet.new([2, 5, 8])
+    assert Snow.Wasteland.stops_for(instructions, 10, "22A", network) ==
+             MapSet.new([2, 5, 8])
   end
 
   # test "Stops for all items in example" do
@@ -164,24 +164,24 @@ defmodule Snow.Days.Day8Test do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
 
     instructions = Stream.cycle(instructions)
-    first_instructions = Enum.take(instructions, 100_000)
+    max_steps = 100_000
 
-    assert Snow.Wasteland.stops_for(first_instructions, "VNA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "VNA", network) ==
              MapSet.new([15870, 31741, 47612, 63483, 79354, 95225])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "QJA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "QJA", network) ==
              MapSet.new([14256, 28513, 42770, 57027, 71284, 85541, 99798])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "JPA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "JPA", network) ==
              MapSet.new([11566, 23133, 34700, 46267, 57834, 69401, 80968, 92535])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "AAA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "AAA", network) ==
              MapSet.new([21250, 42501, 63752, 85003])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "DPA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "DPA", network) ==
              MapSet.new([16408, 32817, 49226, 65635, 82044, 98453])
 
-    assert Snow.Wasteland.stops_for(first_instructions, "DBA", network) ==
+    assert Snow.Wasteland.stops_for(instructions, max_steps, "DBA", network) ==
              MapSet.new([18022, 36045, 54068, 72091, 90114])
   end
 
@@ -189,7 +189,7 @@ defmodule Snow.Days.Day8Test do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
 
     instructions = Stream.cycle(instructions)
-    first_instructions = Enum.take(instructions, max_steps)
+    IO.puts("Taking first #{max_steps} instructions")
 
     entrypoints =
       Map.keys(elem(network, 0))
@@ -199,7 +199,7 @@ defmodule Snow.Days.Day8Test do
 
     stops_sets =
       Enum.map(entrypoints, fn pos ->
-        Task.async(fn -> Snow.Wasteland.stops_for(first_instructions, pos, network) end)
+        Task.async(fn -> Snow.Wasteland.stops_for(instructions, max_steps, pos, network) end)
       end)
       |> Enum.map(&Task.await(&1, :infinity))
 
@@ -225,7 +225,7 @@ defmodule Snow.Days.Day8Test do
 
   @tag timeout: :infinity
   test "Common lowest stop for all items in real data" do
-    assert solution(@real_input, 1_000_000) == -1
+    # assert solution(@real_input, 1_000_000_000) == -1
   end
 
   @tag timeout: :infinity

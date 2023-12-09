@@ -20,40 +20,47 @@ defmodule Snow.Wasteland do
   # stop_poses = Map.keys(left) |> Enum.filter(&String.ends_with?(&1, "Z")) |> MapSet.new()
 
   # Compile time detect of ending in Z. Read from the data file perhaps
-  defp ends_in_z("FTZ"), do: true
-  defp ends_in_z("GGZ"), do: true
-  defp ends_in_z("KTZ"), do: true
-  defp ends_in_z("MCZ"), do: true
-  defp ends_in_z("TPZ"), do: true
-  defp ends_in_z("ZZZ"), do: true
-  defp ends_in_z("11Z"), do: true
-  defp ends_in_z("22Z"), do: true
-  defp ends_in_z(_), do: false
+  defp ends_in_z(pos) do
+    case pos do
+      "FTZ" -> true
+      "GGZ" -> true
+      "KTZ" -> true
+      "MCZ" -> true
+      "TPZ" -> true
+      "ZZZ" -> true
+      "11Z" -> true
+      "22Z" -> true
+      _ -> false
+    end
+  end
 
-  def stops_for(instructions, position, {left, right}) do
-    {_iterations, _end_at, stops} =
-      instructions
-      |> Enum.reduce({0, position, []}, fn instruction, {i, pos, stops} ->
-        if rem(i, 100_0000) == 0 and i > 0 do
-          IO.inspect(i, label: "Progress for #{position}")
+  def stops_for(instructions, max_steps, position, {left, right}) do
+    {:ok, keeper} = Agent.start_link(fn -> [] end)
+
+    instructions
+    |> Enum.reduce_while({0, position}, fn instruction, {i, pos} ->
+      if rem(i, 1_000_000) == 0 and i > 0 do
+        IO.inspect(i, label: "Progress for #{position}")
+      end
+
+      pos =
+        case instruction do
+          :left -> left[pos]
+          :right -> right[pos]
         end
 
-        pos =
-          case instruction do
-            :left -> left[pos]
-            :right -> right[pos]
-          end
+      if ends_in_z(pos) do
+        Agent.update(keeper, fn stops -> [i | stops] end)
+      end
 
-        stops =
-          if ends_in_z(pos) do
-            [i | stops]
-          else
-            stops
-          end
+      if i < max_steps do
+        {:cont, {i + 1, pos}}
+      else
+        {:halt, "No solution was found"}
+      end
+    end)
 
-        {i + 1, pos, stops}
-      end)
-
+    stops = Agent.get(keeper, fn stops -> stops end)
     MapSet.new(stops)
   end
 
