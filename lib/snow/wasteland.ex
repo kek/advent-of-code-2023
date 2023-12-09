@@ -17,10 +17,27 @@ defmodule Snow.Wasteland do
     end
   end
 
+  # stop_poses = Map.keys(left) |> Enum.filter(&String.ends_with?(&1, "Z")) |> MapSet.new()
+
+  # Compile time detect of ending in Z. Read from the data file perhaps
+  defp ends_in_z("FTZ"), do: true
+  defp ends_in_z("GGZ"), do: true
+  defp ends_in_z("KTZ"), do: true
+  defp ends_in_z("MCZ"), do: true
+  defp ends_in_z("TPZ"), do: true
+  defp ends_in_z("ZZZ"), do: true
+  defp ends_in_z("11Z"), do: true
+  defp ends_in_z("22Z"), do: true
+  defp ends_in_z(_), do: false
+
   def stops_for(instructions, position, {left, right}) do
     {_iterations, _end_at, stops} =
       instructions
       |> Enum.reduce({0, position, []}, fn instruction, {i, pos, stops} ->
+        if rem(i, 100_0000) == 0 and i > 0 do
+          IO.inspect(i, label: "Progress for #{position}")
+        end
+
         pos =
           case instruction do
             :left -> left[pos]
@@ -28,7 +45,7 @@ defmodule Snow.Wasteland do
           end
 
         stops =
-          if String.ends_with?(pos, "Z") do
+          if ends_in_z(pos) do
             [i | stops]
           else
             stops

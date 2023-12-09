@@ -185,7 +185,7 @@ defmodule Snow.Days.Day8Test do
              MapSet.new([18022, 36045, 54068, 72091, 90114])
   end
 
-  def solution(data, max_steps \\ 10_000_000) do
+  def solution(data, max_steps \\ 100_000) do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(data)
 
     instructions = Stream.cycle(instructions)
@@ -198,7 +198,10 @@ defmodule Snow.Days.Day8Test do
     IO.puts("Calculating stops sets")
 
     stops_sets =
-      Enum.map(entrypoints, &Snow.Wasteland.stops_for(first_instructions, &1, network))
+      Enum.map(entrypoints, fn pos ->
+        Task.async(fn -> Snow.Wasteland.stops_for(first_instructions, pos, network) end)
+      end)
+      |> Enum.map(&Task.await(&1, :infinity))
 
     # IO.puts("Converting to sets")
     # stops_sets = Enum.map(stops_lists, &MapSet.new/1)
@@ -206,8 +209,14 @@ defmodule Snow.Days.Day8Test do
     common_stops_sets = Enum.reduce(stops_sets, &MapSet.intersection/2)
 
     IO.puts("Sorting")
-    solution = (common_stops_sets |> Enum.sort() |> hd) + 1
-    solution
+
+    common_stops_sets
+    |> Enum.sort()
+    |> Enum.take(1)
+    |> case do
+      [] -> "No solution found"
+      [n] -> n + 1
+    end
   end
 
   test "Common lowest stop for all items in example" do
@@ -215,9 +224,8 @@ defmodule Snow.Days.Day8Test do
   end
 
   @tag timeout: :infinity
-  @tag :skip
   test "Common lowest stop for all items in real data" do
-    assert solution(@real_input) == -1
+    assert solution(@real_input, 1_000_000) == -1
   end
 
   @tag timeout: :infinity
