@@ -142,24 +142,6 @@ defmodule Snow.Days.Day8Test do
              MapSet.new([2, 5, 8])
   end
 
-  # test "Stops for all items in example" do
-  #   {instructions, network} = Snow.Wasteland.ParserMulti.read(@example3)
-
-  #   instructions = Stream.cycle(instructions)
-  #   first_instructions = Enum.take(instructions, 10)
-
-  #   positions =
-  #     Map.keys(elem(network, 0))
-  #     |> Enum.filter(&String.ends_with?(&1, "A"))
-
-  #   positions
-  #   |> Enum.each(fn position ->
-  #     IO.inspect(Snow.Wasteland.stops_for(first_instructions, position, network),
-  #       label: "Stops for example item #{position}"
-  #     )
-  #   end)
-  # end
-
   test "Stops for all items in real data" do
     {instructions, network} = Snow.Wasteland.ParserMulti.read(@real_input)
 
@@ -203,8 +185,6 @@ defmodule Snow.Days.Day8Test do
       end)
       |> Enum.map(&Task.await(&1, :infinity))
 
-    # IO.puts("Converting to sets")
-    # stops_sets = Enum.map(stops_lists, &MapSet.new/1)
     IO.puts("Calculating intersections")
     common_stops_sets = Enum.reduce(stops_sets, &MapSet.intersection/2)
 
