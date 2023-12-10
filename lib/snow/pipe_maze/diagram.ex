@@ -15,8 +15,12 @@ defmodule Snow.PipeMaze.Diagram do
     )
   )
 
-  def day10 do
-    {:ok, result, _, _, _, _} = File.read!("priv/input/Day 10 input.txt") |> diagram
+  def parse(data) do
+    {:ok, result, _, _, _, _} = data |> diagram
     result
+  end
+
+  def day10 do
+    File.read!("priv/input/Day 10 input.txt") |> parse
   end
 end
