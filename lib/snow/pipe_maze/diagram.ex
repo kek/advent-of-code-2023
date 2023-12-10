@@ -6,6 +6,41 @@ defmodule Snow.PipeMaze.Diagram do
     %__MODULE__{grid: result}
   end
 
+  def starting_point(%__MODULE__{grid: grid}) do
+    {line, y} =
+      grid
+      |> Enum.with_index()
+      |> Enum.find(fn {line, _} ->
+        Enum.any?(line, &(&1 == ?S))
+      end)
+
+    {?S, x} =
+      line
+      |> Enum.with_index()
+      |> Enum.find(fn {c, _} -> c == ?S end)
+
+    {x, y}
+  end
+
+  def connections(%__MODULE__{grid: _grid} = diagram, {x, y}) do
+    adjacents({x, y})
+    |> Enum.reject(fn pos ->
+      get(diagram, pos) == ?.
+    end)
+  end
+
+  defp adjacents({x, y}) do
+    for xd <- -1..1, yd <- -1..1 do
+      {x + xd, y + yd}
+    end
+    |> Enum.reject(&(&1 == {x, y}))
+  end
+
+  def get(%__MODULE__{grid: grid}, {x, y}) do
+    Enum.at(grid, y)
+    |> Enum.at(x)
+  end
+
   # Examples
 
   def day10 do
