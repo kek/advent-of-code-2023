@@ -52,7 +52,8 @@ defmodule Snow.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.5"},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
-      {:nimble_parsec, "~> 1.4"}
+      {:nimble_parsec, "~> 1.4"},
+      {:exsync, "~> 0.2", only: :dev}
     ]
   end
 
