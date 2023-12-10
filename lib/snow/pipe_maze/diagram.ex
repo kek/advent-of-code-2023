@@ -134,6 +134,40 @@ defmodule Snow.PipeMaze.Diagram do
     end
   end
 
+  def project(shape, x, y) do
+    Enum.map(0..(y - 1), fn row ->
+      Enum.map(0..(x - 1), fn col ->
+        if Enum.any?(shape, fn
+             {^row, ^col} -> true
+             _ -> false
+           end) do
+          ?o
+        else
+          ?.
+        end
+      end)
+    end)
+  end
+
+  def dimensions(%__MODULE__{grid: grid}) do
+    {Enum.count(hd(grid)), Enum.count(grid)}
+  end
+
+  def draw_loop(diagram) do
+    sp = starting_point(diagram)
+    loop = find_the_loop(diagram, sp)
+    {x, y} = dimensions(diagram)
+    %__MODULE__{grid: project(loop, x, y)}
+  end
+
+  def draw_first_loop do
+    draw_loop(first_example())
+  end
+
+  def draw_real_loop do
+    draw_loop(day10())
+  end
+
   # Examples
 
   def day10 do
