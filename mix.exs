@@ -53,7 +53,8 @@ defmodule Snow.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:nimble_parsec, "~> 1.4"},
-      {:exsync, "~> 0.2", only: :dev}
+      {:exsync, "~> 0.2", only: :dev},
+      {:image, "~> 0.38.4"}
     ]
   end
 
