@@ -29,54 +29,109 @@ defmodule Snow.PipeMaze.Diagram do
   # 7 is a 90-degree bend connecting south and west.
   # F is a 90-degree bend connecting south and east.
 
+  def can_connect?(direction, this, that) do
+    case {direction, this, that} do
+      {_, _, nil} -> false
+      {_, nil, _} -> false
+      {:here, _, ?S} -> false
+      {_, _, ?.} -> false
+      # Impossible outs
+      {:w, ?|, _} -> false
+      {:e, ?|, _} -> false
+      {:n, ?-, _} -> false
+      {:s, ?-, _} -> false
+      {:w, ?L, _} -> false
+      {:s, ?L, _} -> false
+      {:e, ?J, _} -> false
+      {:s, ?J, _} -> false
+      {:e, ?7, _} -> false
+      {:n, ?7, _} -> false
+      {:n, ?F, _} -> false
+      {:w, ?F, _} -> false
+      {_, _, ?S} -> true
+      # You can go North by | 7 F
+      {:n, _, ?|} -> true
+      {:n, _, ?-} -> false
+      {:n, _, ?L} -> false
+      {:n, _, ?J} -> false
+      {:n, _, ?7} -> true
+      {:n, _, ?F} -> true
+      # You can go East by - J 7
+      {:e, _, ?|} -> false
+      {:e, _, ?-} -> true
+      {:e, _, ?L} -> false
+      {:e, _, ?J} -> true
+      {:e, _, ?7} -> true
+      {:e, _, ?F} -> false
+      # You can go South by | L J
+      {:s, _, ?|} -> true
+      {:s, _, ?-} -> false
+      {:s, _, ?L} -> true
+      {:s, _, ?J} -> true
+      {:s, _, ?7} -> false
+      {:s, _, ?F} -> false
+      # You can go West by - L F
+      {:w, _, ?|} -> false
+      {:w, _, ?-} -> true
+      {:w, _, ?L} -> true
+      {:w, _, ?J} -> false
+      {:w, _, ?7} -> false
+      {:w, _, ?F} -> true
+    end
+  end
+
   def connections(%__MODULE__{grid: _grid} = diagram, {x, y}) do
+    # IO.inspect({x, y}, label: "Checking connections for")
+
     adjacents({x, y})
-    |> Enum.reject(fn {dir, pos} ->
-      case {dir, get(diagram, pos) |> IO.inspect(label: "#{inspect(dir)}")} do
-        {:here, ?S} -> true
-        {_, ?.} -> true
-        # You can go North by | 7 F
-        {:n, ?|} -> false
-        {:n, ?-} -> true
-        {:n, ?L} -> true
-        {:n, ?J} -> true
-        {:n, ?7} -> false
-        {:n, ?F} -> false
-        # You can go East by - J 7
-        {:e, ?|} -> true
-        {:e, ?-} -> false
-        {:e, ?L} -> true
-        {:e, ?J} -> false
-        {:e, ?7} -> false
-        {:e, ?F} -> true
-        # You can go South by | L J
-        {:s, ?|} -> false
-        {:s, ?-} -> true
-        {:s, ?L} -> false
-        {:s, ?J} -> false
-        {:s, ?7} -> true
-        {:s, ?F} -> true
-        # You can go West by - L F
-        {:w, ?|} -> true
-        {:w, ?-} -> false
-        {:w, ?L} -> false
-        {:w, ?J} -> true
-        {:w, ?7} -> true
-        {:w, ?F} -> false
-      end
+    # |> IO.inspect(label: "Those were the adjacents for #{inspect({x, y})}")
+    |> Enum.filter(fn {dir, pos} ->
+      # IO.inspect(dir)
+      # IO.inspect(get(diagram, pos), label: "get")
+
+      can_connect?(dir, get(diagram, {x, y}), get(diagram, pos))
+      # |> IO.inspect(
+      #   label:
+      #     "Can connect #{inspect({x, y})} which is a #{inspect(get(diagram, {x, y}))} to the #{dir} #{inspect(pos)} because there is a #{inspect(get(diagram, pos))} there"
+      # )
     end)
+
+    # |> IO.inspect(label: "Those were the connections for #{inspect({x, y})}")
   end
 
   def adjacents({x, y}) do
     [:n, :e, :s, :w]
     |> Enum.zip([{x, y - 1}, {x + 1, y}, {x, y + 1}, {x - 1, y}])
-    |> IO.inspect()
+    |> Enum.reject(fn {_, {x, y}} ->
+      x < 0 || y < 0
+    end)
     |> Enum.reject(&(&1 == {x, y}))
   end
 
   def get(%__MODULE__{grid: grid}, {x, y}) do
-    Enum.at(grid, y)
-    |> Enum.at(x)
+    # IO.inspect({x, y}, label: "getting")
+
+    case Enum.at(grid, y) do
+      nil -> nil
+      row -> Enum.at(row, x)
+    end
+  end
+
+  def find_the_loop(diagram, pos, from \\ nil) do
+    # IO.inspect(connections(diagram, pos), label: "Hey #{inspect(pos)}")
+
+    next =
+      case connections(diagram, pos) do
+        [{_, ^from}, {_, b}] -> b
+        [{_, a}, {_, _}] -> a
+      end
+
+    if get(diagram, next) == ?S do
+      [pos]
+    else
+      [pos | find_the_loop(diagram, next, pos)]
+      # |> IO.inspect(label: "so far")
+    end
   end
 
   # Examples
