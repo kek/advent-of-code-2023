@@ -134,14 +134,16 @@ defmodule Snow.PipeMaze.Diagram do
     end
   end
 
-  def project(shape, x, y) do
+  def project(diagram, shape) do
+    {x, y} = dimensions(diagram)
+
     Enum.map(0..(y - 1), fn row ->
       Enum.map(0..(x - 1), fn col ->
         if Enum.any?(shape, fn
              {^row, ^col} -> true
              _ -> false
            end) do
-          ?o
+          get(diagram, {row, col})
         else
           ?.
         end
@@ -156,8 +158,7 @@ defmodule Snow.PipeMaze.Diagram do
   def draw_loop(diagram) do
     sp = starting_point(diagram)
     loop = find_the_loop(diagram, sp)
-    {x, y} = dimensions(diagram)
-    %__MODULE__{grid: project(loop, x, y)}
+    %__MODULE__{grid: project(diagram, loop)}
   end
 
   def draw_first_loop do
