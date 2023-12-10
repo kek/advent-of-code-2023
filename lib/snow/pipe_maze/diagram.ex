@@ -22,17 +22,55 @@ defmodule Snow.PipeMaze.Diagram do
     {x, y}
   end
 
+  # | is a vertical pipe connecting north and south.
+  # - is a horizontal pipe connecting east and west.
+  # L is a 90-degree bend connecting north and east.
+  # J is a 90-degree bend connecting north and west.
+  # 7 is a 90-degree bend connecting south and west.
+  # F is a 90-degree bend connecting south and east.
+
   def connections(%__MODULE__{grid: _grid} = diagram, {x, y}) do
     adjacents({x, y})
-    |> Enum.reject(fn pos ->
-      get(diagram, pos) == ?.
+    |> Enum.reject(fn {dir, pos} ->
+      case {dir, get(diagram, pos) |> IO.inspect(label: "#{inspect(dir)}")} do
+        {:here, ?S} -> true
+        {_, ?.} -> true
+        # You can go North by | 7 F
+        {:n, ?|} -> false
+        {:n, ?-} -> true
+        {:n, ?L} -> true
+        {:n, ?J} -> true
+        {:n, ?7} -> false
+        {:n, ?F} -> false
+        # You can go East by - J 7
+        {:e, ?|} -> true
+        {:e, ?-} -> false
+        {:e, ?L} -> true
+        {:e, ?J} -> false
+        {:e, ?7} -> false
+        {:e, ?F} -> true
+        # You can go South by | L J
+        {:s, ?|} -> false
+        {:s, ?-} -> true
+        {:s, ?L} -> false
+        {:s, ?J} -> false
+        {:s, ?7} -> true
+        {:s, ?F} -> true
+        # You can go West by - L F
+        {:w, ?|} -> true
+        {:w, ?-} -> false
+        {:w, ?L} -> false
+        {:w, ?J} -> true
+        {:w, ?7} -> true
+        {:w, ?F} -> false
+      end
     end)
   end
 
-  defp adjacents({x, y}) do
-    for xd <- -1..1, yd <- -1..1 do
-      {x + xd, y + yd}
-    end
+  def adjacents({x, y}) do
+    [:n, :e, :s, :w]
+    |> Enum.zip([{x, y - 1}, {x + 1, y}, {x, y + 1}, {x - 1, y}])
+    |> IO.inspect()
     |> Enum.reject(&(&1 == {x, y}))
   end
 
@@ -58,7 +96,7 @@ defmodule Snow.PipeMaze.Diagram do
     |> parse
   end
 
-  def second_example_with_junk do
+  def first_example_with_junk do
     """
     -L|F7
     7S-7|
