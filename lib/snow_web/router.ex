@@ -18,7 +18,13 @@ defmodule SnowWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/image-of-loop", PageController, :image_of_loop
+  end
+
+  scope "/pipe-maze/", SnowWeb do
+    pipe_through :browser
+
+    get "/", PipeMazeController, :index
+    get "/loop/:name", PipeMazeController, :image_of_loop
   end
 
   # Other scopes may use custom stacks.
