@@ -8,25 +8,43 @@ defmodule SnowWeb.PipeMazeController do
   end
 
   def image_of_loop(conn, params) do
-    diagram =
-      case params["name"] do
-        "first" -> Diagram.first_example()
-        "first-with-junk" -> Diagram.first_example_with_junk()
-        "more-complex-example" -> Diagram.more_complex_example()
-        "more-complex-example-with-junk" -> Diagram.more_complex_example_with_junk()
-        "day10" -> Diagram.day10()
-      end
+    visualization =
+      select_diagram(params["name"])
+      |> image()
 
-    image = image(diagram)
-    {:ok, data} = Image.write(image, :memory, suffix: ".png")
+    {:ok, data} = Image.write(visualization, :memory, suffix: ".png")
 
     conn
     |> put_resp_content_type("image/png")
     |> resp(200, data)
   end
 
+  def flood_image_of_loop(conn, params) do
+    visualization =
+      select_diagram(params["name"])
+      |> image(:white)
+
+    {:ok, {visualization, _}} = Image.Draw.flood(visualization, 0, 0, color: :blue, equal: true)
+
+    {:ok, data} = Image.write(visualization, :memory, suffix: ".png")
+
+    conn
+    |> put_resp_content_type("image/png")
+    |> resp(200, data)
+  end
+
+  defp select_diagram(name) do
+    case name do
+      "first" -> Diagram.first_example()
+      "first-with-junk" -> Diagram.first_example_with_junk()
+      "more-complex-example" -> Diagram.more_complex_example()
+      "more-complex-example-with-junk" -> Diagram.more_complex_example_with_junk()
+      "day10" -> Diagram.day10()
+    end
+  end
+
   @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, diagram})
-  defp image(diagram) do
+  defp image(diagram, junk_color \\ :gray) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
     {cols, rows} = Diagram.dimensions(diagram)
 
@@ -36,7 +54,7 @@ defmodule SnowWeb.PipeMazeController do
           symbol = Diagram.get(diagram, {row, col})
           in_loop = Enum.member?(loop, {row, col})
 
-          tile(symbol, in_loop)
+          tile(symbol, in_loop, junk_color)
         end)
       end)
       |> List.flatten()
@@ -88,12 +106,12 @@ defmodule SnowWeb.PipeMazeController do
     end
   end
 
-  defp tile(symbol, in_loop?) do
+  defp tile(symbol, in_loop?, junk_color) do
     {:ok, tile} =
       if in_loop? do
         shape_from_symbol(symbol)
       else
-        shape_from_symbol(symbol, :gray)
+        shape_from_symbol(symbol, junk_color)
       end
 
     tile

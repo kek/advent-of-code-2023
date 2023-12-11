@@ -25,6 +25,7 @@ defmodule SnowWeb.Router do
 
     get "/", PipeMazeController, :index
     get "/loop/:name", PipeMazeController, :image_of_loop
+    get "/loop/:name/flood", PipeMazeController, :flood_image_of_loop
   end
 
   # Other scopes may use custom stacks.
