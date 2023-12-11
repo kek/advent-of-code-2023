@@ -37,21 +37,14 @@ defmodule SnowWeb.PipeMazeController do
   end
 
   def is_cell_white?(image, x, y) do
-    xa = x * 3
-    xb = x * 3 + 2
-    ya = y * 3
-    yb = y * 3 + 2
-    xr = xa..xb
-    yr = ya..yb
-    cell_pixels = for xd <- xr, yd <- yr, do: {xd, yd}
+    pixels = fn i -> (i * 3)..(i * 3 + 2) end
 
-    Enum.all?(cell_pixels, fn {cr, cy} ->
-      color = Image.get_pixel!(image, cr, cy)
-
-      is_white = color == [255, 255, 255]
-
-      is_white
-    end)
+    Enum.all?(
+      for(x <- pixels.(x), y <- pixels.(y), do: {x, y}),
+      fn {cr, cy} ->
+        Image.get_pixel!(image, cr, cy) == [255, 255, 255]
+      end
+    )
   end
 
   defp select_diagram(name) do
