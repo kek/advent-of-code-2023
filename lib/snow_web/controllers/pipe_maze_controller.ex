@@ -20,17 +20,50 @@ defmodule SnowWeb.PipeMazeController do
   end
 
   def flood_image_of_loop(conn, params) do
+    diagram = select_diagram(params["name"])
+
     visualization =
-      select_diagram(params["name"])
+      diagram
       |> image(:white)
 
     {:ok, {visualization, _}} = Image.Draw.flood(visualization, 0, 0, color: :blue, equal: true)
 
+    {cols, rows} = Diagram.dimensions(diagram)
+
+    white_cells =
+      for x <- 0..(cols - 1), y <- 0..(rows - 1) do
+        is_cell_white?(visualization, x, y)
+      end
+      |> Enum.filter(&(&1 == true))
+      |> Enum.count()
+
     {:ok, data} = Image.write(visualization, :memory, suffix: ".png")
 
     conn
+    |> put_resp_header("x-white-cells", "#{white_cells}")
     |> put_resp_content_type("image/png")
     |> resp(200, data)
+  end
+
+  def is_cell_white?(image, x, y) do
+    xa = x * 3
+    xb = x * 3 + 2
+    ya = y * 3
+    yb = y * 3 + 2
+    xr = xa..xb |> IO.inspect(label: "x range")
+    yr = ya..yb |> IO.inspect(label: "y range")
+    cell_pixels = for xd <- xr, yd <- yr, do: {xd, yd}
+
+    Enum.all?(cell_pixels, fn {cr, cy} ->
+      color = Image.get_pixel!(image, cr, cy)
+
+      is_white = color == [255, 255, 255]
+
+      IO.inspect("Color of #{inspect({cr, cy})} is #{inspect(color)}")
+
+      is_white
+    end)
+    |> IO.inspect()
   end
 
   defp select_diagram(name) do
@@ -40,80 +73,102 @@ defmodule SnowWeb.PipeMazeController do
       "more-complex-example" -> Diagram.more_complex_example()
       "more-complex-example-with-junk" -> Diagram.more_complex_example_with_junk()
       "day10" -> Diagram.day10()
+      "part-two-first" -> Diagram.part_two_first_example()
+      "part-two-larger" -> Diagram.part_two_larger_example()
+      "part-two-another" -> Diagram.part_two_another_example_with_junk_laying_around()
     end
   end
 
   @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, diagram})
-  defp image(diagram, junk_color \\ :gray) do
+  def image(diagram, junk_color \\ :gray) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
-    {cols, rows} = Diagram.dimensions(diagram)
+    {cols, _rows} = Diagram.dimensions(diagram)
+    IO.puts("\n")
+    IO.inspect(diagram)
 
-    {:ok, image} =
-      Enum.map(0..(cols - 1), fn col ->
-        Enum.map(0..(rows - 1), fn row ->
-          symbol = Diagram.get(diagram, {row, col})
-          in_loop = Enum.member?(loop, {row, col})
+    map_rows(diagram, loop, junk_color)
+    # for x <- 0..(cols - 1),
+    #     y <- 0..(rows - 1) do
+    #   symbol = Diagram.get(diagram, {x, y})
+    #   in_loop = Enum.member?(loop, {x, y})
+    #   tile(symbol, in_loop, junk_color)
+    # end
+    |> List.flatten()
+    |> Vix.Vips.Operation.arrayjoin!(across: cols)
+  end
 
-          tile(symbol, in_loop, junk_color)
-        end)
-      end)
-      |> List.flatten()
-      |> Vix.Vips.Operation.arrayjoin(across: cols)
+  defp map_rows(diagram, loop, junk_color) do
+    {_, rows} = Diagram.dimensions(diagram)
 
-    image
+    Enum.map(0..(rows - 1), fn row ->
+      map_cols(diagram, row, loop, junk_color)
+    end)
+    |> IO.inspect(label: "the rows")
+  end
+
+  defp map_cols(diagram, row, loop, junk_color) do
+    items = Enum.at(diagram.grid, row)
+    length = Enum.count(items)
+
+    Enum.map(0..(length - 1), fn i ->
+      {x, y} = {i, row}
+      symbol = Diagram.get(diagram, {x, y})
+      in_loop = Enum.member?(loop, {x, y})
+      tile(symbol, in_loop, junk_color)
+    end)
   end
 
   defp shape_from_symbol(symbol, color \\ :black) do
-    {:ok, image} = Image.new(3, 3, color: :white)
+    image = Image.new!(3, 3, color: :white)
 
     case symbol do
       # | is a vertical pipe connecting north and south.
       ?| ->
-        {:ok, _image} = Image.Draw.line(image, 1, 0, 1, 2, color: color)
+        image |> Image.Draw.line!(1, 0, 1, 2, color: color)
 
       # - is a horizontal pipe connecting east and west.
       ?- ->
-        {:ok, _image} = Image.Draw.line(image, 0, 1, 2, 1, color: color)
+        image |> Image.Draw.line!(0, 1, 2, 1, color: color)
 
       # L is a 90-degree bend connecting north and east.
       ?L ->
-        {:ok, image} = Image.Draw.line(image, 1, 1, 2, 1, color: color)
-        {:ok, _image} = Image.Draw.line(image, 1, 1, 1, 0, color: color)
+        image
+        |> Image.Draw.line!(1, 1, 2, 1, color: color)
+        |> Image.Draw.line!(1, 1, 1, 0, color: color)
 
       # J is a 90-degree bend connecting north and west.
       ?J ->
-        {:ok, image} = Image.Draw.line(image, 1, 1, 1, 0, color: color)
-        {:ok, _image} = Image.Draw.line(image, 1, 1, 0, 1, color: color)
+        image
+        |> Image.Draw.line!(1, 1, 1, 0, color: color)
+        |> Image.Draw.line!(1, 1, 0, 1, color: color)
 
       # 7 is a 90-degree bend connecting south and west.
       ?7 ->
-        {:ok, image} = Image.Draw.line(image, 1, 1, 0, 1, color: color)
-        {:ok, _image} = Image.Draw.line(image, 1, 1, 1, 2, color: color)
+        image
+        |> Image.Draw.line!(1, 1, 0, 1, color: color)
+        |> Image.Draw.line!(1, 1, 1, 2, color: color)
 
       # F is a 90-degree bend connecting south and east.
       ?F ->
-        {:ok, image} = Image.Draw.line(image, 1, 1, 2, 1, color: color)
-        {:ok, _image} = Image.Draw.line(image, 1, 1, 1, 2, color: color)
+        image
+        |> Image.Draw.line!(1, 1, 2, 1, color: color)
+        |> Image.Draw.line!(1, 1, 1, 2, color: color)
 
       # S is the starting point
       ?S ->
-        {:ok, {image, _}} = Image.Draw.flood(image, 0, 0, color: :red)
-        {:ok, image}
+        Image.Draw.flood!(image, 0, 0, color: :red)
 
       # . is empty ground
       ?. ->
-        {:ok, image}
+        image
     end
   end
 
   defp tile(symbol, in_loop?, junk_color) do
-    {:ok, tile} =
-      if in_loop? do
-        shape_from_symbol(symbol)
-      else
-        shape_from_symbol(symbol, junk_color)
-      end
-
-    tile
+    if in_loop? do
+      shape_from_symbol(symbol)
+    else
+      shape_from_symbol(symbol, junk_color)
+    end
   end
 end
