@@ -26,16 +26,7 @@ defmodule SnowWeb.PipeMazeController do
       diagram
       |> image(:white)
 
-    {:ok, {visualization, _}} = Image.Draw.flood(visualization, 0, 0, color: :blue, equal: true)
-
-    {cols, rows} = Diagram.dimensions(diagram)
-
-    white_cells =
-      for x <- 0..(cols - 1), y <- 0..(rows - 1) do
-        is_cell_white?(visualization, x, y)
-      end
-      |> Enum.filter(&(&1 == true))
-      |> Enum.count()
+    {visualization, white_cells} = flood(diagram, visualization)
 
     {:ok, data} = Image.write(visualization, :memory, suffix: ".png")
 
@@ -114,6 +105,22 @@ defmodule SnowWeb.PipeMazeController do
       in_loop = Enum.member?(loop, {x, y})
       tile(symbol, in_loop, junk_color)
     end)
+  end
+
+  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_flood, diagram})
+  defp flood(diagram, visualization) do
+    {:ok, {visualization, _}} = Image.Draw.flood(visualization, 0, 0, color: :blue, equal: true)
+
+    {cols, rows} = Diagram.dimensions(diagram)
+
+    white_cells =
+      for x <- 0..(cols - 1), y <- 0..(rows - 1) do
+        is_cell_white?(visualization, x, y)
+      end
+      |> Enum.filter(&(&1 == true))
+      |> Enum.count()
+
+    {visualization, white_cells}
   end
 
   defp shape_from_symbol(symbol, color \\ :black) do
