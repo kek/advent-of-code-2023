@@ -50,8 +50,8 @@ defmodule SnowWeb.PipeMazeController do
     xb = x * 3 + 2
     ya = y * 3
     yb = y * 3 + 2
-    xr = xa..xb |> IO.inspect(label: "x range")
-    yr = ya..yb |> IO.inspect(label: "y range")
+    xr = xa..xb
+    yr = ya..yb
     cell_pixels = for xd <- xr, yd <- yr, do: {xd, yd}
 
     Enum.all?(cell_pixels, fn {cr, cy} ->
@@ -59,11 +59,8 @@ defmodule SnowWeb.PipeMazeController do
 
       is_white = color == [255, 255, 255]
 
-      IO.inspect("Color of #{inspect({cr, cy})} is #{inspect(color)}")
-
       is_white
     end)
-    |> IO.inspect()
   end
 
   defp select_diagram(name) do
@@ -83,8 +80,8 @@ defmodule SnowWeb.PipeMazeController do
   def image(diagram, junk_color \\ :gray) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
     {cols, _rows} = Diagram.dimensions(diagram)
-    IO.puts("\n")
-    IO.inspect(diagram)
+    # IO.puts("\n")
+    # IO.inspect(diagram)
 
     map_rows(diagram, loop, junk_color)
     # for x <- 0..(cols - 1),
@@ -103,7 +100,8 @@ defmodule SnowWeb.PipeMazeController do
     Enum.map(0..(rows - 1), fn row ->
       map_cols(diagram, row, loop, junk_color)
     end)
-    |> IO.inspect(label: "the rows")
+
+    # |> IO.inspect(label: "the rows")
   end
 
   defp map_cols(diagram, row, loop, junk_color) do
