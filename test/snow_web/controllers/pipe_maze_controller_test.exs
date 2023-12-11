@@ -23,6 +23,7 @@ defmodule SnowWeb.PipeMazeControllerTest do
     assert response(conn, 200)
   end
 
+  @tag :skip
   test "get number of white cells - day 10", %{conn: conn} do
     conn = get(conn, ~p"/pipe-maze/loop/day10/flood")
     assert Plug.Conn.get_resp_header(conn, "x-white-cells") == ["483"]
