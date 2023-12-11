@@ -85,6 +85,7 @@ defmodule SnowWeb.PipeMazeController do
         {:ok, {image, _}} = Image.Draw.flood(image, 0, 0, color: :red)
         {:ok, image}
 
+      # . is empty ground
       ?. ->
         {:ok, image}
     end
