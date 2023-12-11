@@ -1,5 +1,6 @@
 defmodule SnowWeb.PipeMazeController do
   use SnowWeb, :controller
+  use Nebulex.Caching
   alias Snow.PipeMaze.Diagram
 
   def index(conn, _params) do
@@ -26,6 +27,7 @@ defmodule SnowWeb.PipeMazeController do
     |> resp(200, data)
   end
 
+  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, diagram})
   defp image(diagram) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
     {cols, rows} = Diagram.dimensions(diagram)

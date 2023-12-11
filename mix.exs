@@ -54,7 +54,9 @@ defmodule Snow.MixProject do
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:nimble_parsec, "~> 1.4"},
       {:exsync, "~> 0.2", only: :dev},
-      {:image, "~> 0.38.4"}
+      {:image, "~> 0.38.4"},
+      {:nebulex, "~> 2.5"},
+      {:decorator, "~> 1.4"}
     ]
   end
 
