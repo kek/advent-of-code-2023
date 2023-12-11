@@ -18,8 +18,6 @@ defmodule SnowWeb.PipeMazeController do
       end
 
     image = image(diagram)
-    # {:ok, image} = Image.new(100, 100, color: :white)
-    # {:ok, image} = Image.Draw.circle(image, 50, 50, 25, color: :black)
     {:ok, data} = Image.write(image, :memory, suffix: ".png")
 
     conn
@@ -32,7 +30,6 @@ defmodule SnowWeb.PipeMazeController do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
     {cols, rows} = Diagram.dimensions(diagram)
 
-    # {:ok, image} = Image.new(x, y, color: :white)
     {:ok, image} =
       Enum.map(0..(cols - 1), fn col ->
         Enum.map(0..(rows - 1), fn row ->
