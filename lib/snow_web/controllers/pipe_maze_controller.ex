@@ -76,7 +76,7 @@ defmodule SnowWeb.PipeMazeController do
     end
   end
 
-  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, diagram})
+  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, {diagram, junk_color}})
   def image(diagram, junk_color \\ :gray) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
     {cols, _rows} = Diagram.dimensions(diagram)
