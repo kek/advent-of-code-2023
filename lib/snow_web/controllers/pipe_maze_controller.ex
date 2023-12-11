@@ -67,44 +67,19 @@ defmodule SnowWeb.PipeMazeController do
     end
   end
 
-  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, {diagram, junk_color}})
+  @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_image, diagram, junk_color})
   def image(diagram, junk_color \\ :gray) do
     loop = Diagram.find_the_loop(diagram, Diagram.starting_point(diagram))
-    {cols, _rows} = Diagram.dimensions(diagram)
-    # IO.puts("\n")
-    # IO.inspect(diagram)
+    {cols, rows} = Diagram.dimensions(diagram)
 
-    map_rows(diagram, loop, junk_color)
-    # for x <- 0..(cols - 1),
-    #     y <- 0..(rows - 1) do
-    #   symbol = Diagram.get(diagram, {x, y})
-    #   in_loop = Enum.member?(loop, {x, y})
-    #   tile(symbol, in_loop, junk_color)
-    # end
-    |> List.flatten()
-    |> Vix.Vips.Operation.arrayjoin!(across: cols)
-  end
-
-  defp map_rows(diagram, loop, junk_color) do
-    {_, rows} = Diagram.dimensions(diagram)
-
-    Enum.map(0..(rows - 1), fn row ->
-      map_cols(diagram, row, loop, junk_color)
-    end)
-
-    # |> IO.inspect(label: "the rows")
-  end
-
-  defp map_cols(diagram, row, loop, junk_color) do
-    items = Enum.at(diagram.grid, row)
-    length = Enum.count(items)
-
-    Enum.map(0..(length - 1), fn i ->
-      {x, y} = {i, row}
+    for y <- 0..(rows - 1),
+        x <- 0..(cols - 1) do
       symbol = Diagram.get(diagram, {x, y})
       in_loop = Enum.member?(loop, {x, y})
       tile(symbol, in_loop, junk_color)
-    end)
+    end
+    |> List.flatten()
+    |> Vix.Vips.Operation.arrayjoin!(across: cols)
   end
 
   @decorate cacheable(cache: Snow.PipeMaze.Cache, key: {:pipe_maze_flood, diagram})
