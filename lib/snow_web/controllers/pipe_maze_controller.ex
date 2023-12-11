@@ -4,7 +4,7 @@ defmodule SnowWeb.PipeMazeController do
   alias Snow.PipeMaze.Diagram
 
   def index(conn, _params) do
-    render(conn, :index)
+    render(conn, :index, page_title: "Pipe Maze")
   end
 
   def image_of_loop(conn, params) do
