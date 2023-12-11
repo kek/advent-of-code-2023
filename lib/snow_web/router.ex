@@ -18,6 +18,7 @@ defmodule SnowWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/image-of-loop", PageController, :image_of_loop
   end
 
   # Other scopes may use custom stacks.
