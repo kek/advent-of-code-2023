@@ -108,6 +108,7 @@ defmodule Snow.PipeMaze.Diagram do
     |> Enum.reject(&(&1 == {x, y}))
   end
 
+  @spec get(%Snow.PipeMaze.Diagram{}, {x :: integer(), y :: integer()}) :: char()
   def get(%__MODULE__{grid: grid}, {x, y}) do
     # IO.inspect({x, y}, label: "getting")
 
