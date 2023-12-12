@@ -78,6 +78,7 @@ defmodule Snow.Cosmos.Universe do
         end
       end
       |> Enum.flat_map(& &1)
+      |> Enum.map(&project(&1, universe, ether_weight))
 
     Logger.debug("Finding the pairs")
 
@@ -91,7 +92,7 @@ defmodule Snow.Cosmos.Universe do
 
     for pair <- pairs do
       [a, b] = Enum.take(pair, 2)
-      distance(universe, a, b, ether_weight)
+      distance(a, b)
     end
     |> Enum.sum()
     |> IO.inspect(label: "sum of distances")
@@ -99,8 +100,10 @@ defmodule Snow.Cosmos.Universe do
     universe
   end
 
-  defp distance(universe, a, b, ether_weight) do
-    path(project(a, universe, ether_weight), project(b, universe, ether_weight))
+  defp distance({ax, ay}, {bx, by}) do
+    h = max(ax, bx) - min(ax, bx)
+    v = max(ay, by) - min(ay, by)
+    h + v
   end
 
   # defp distance(universe, {ax, ay}, {bx, by}, ether_weight) do
@@ -110,15 +113,15 @@ defmodule Snow.Cosmos.Universe do
   #   tox - fromx + toy - fromy
   # end
 
-  # defp project({x, y}, universe, ether_weight) do
-  #   # |> IO.inspect(label: "row")
-  #   row = Enum.at(universe, y) |> Enum.take(x)
-  #   # |> IO.inspect(label: "column")
-  #   column = Enum.map(universe, &Enum.at(&1, x)) |> Enum.take(y)
-  #   ethers_on_row = Enum.count(row, &(&1 == :ether))
-  #   ethers_in_column = Enum.count(column, &(&1 == :ether))
-  #   ether_width = ethers_on_row * ether_weight
-  #   ether_height = ethers_in_column * ether_weight
-  #   {x + ether_width, y + ether_height}
-  # end
+  defp project({x, y}, universe, ether_weight) do
+    # |> IO.inspect(label: "row")
+    row = Enum.at(universe, y) |> Enum.take(x)
+    # |> IO.inspect(label: "column")
+    column = Enum.map(universe, &Enum.at(&1, x)) |> Enum.take(y)
+    ethers_on_row = Enum.count(row, &(&1 == :ether))
+    ethers_in_column = Enum.count(column, &(&1 == :ether))
+    ether_width = ethers_on_row * ether_weight - ethers_on_row
+    ether_height = ethers_in_column * ether_weight - ethers_in_column
+    {x + ether_width, y + ether_height}
+  end
 end
