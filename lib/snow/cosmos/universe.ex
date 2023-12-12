@@ -24,34 +24,57 @@ defmodule Snow.Cosmos.Universe do
     )
   )
 
-  def get(space_map, {x, y}) do
-    case Enum.at(space_map, y) do
+  def get(universe, {x, y}) do
+    case Enum.at(universe, y) do
       nil -> nil
       row -> Enum.at(row, x)
     end
   end
 
-  def get_v(space_map, {x, y}) do
-    case Enum.at(space_map, y) do
-      nil -> nil
-      row -> Enum.at(row, x)
+  def get_v(universe, {x, y}) do
+    cond do
+      Agent.get(:blank_rows, fn s -> MapSet.member?(s, y) end) ->
+        :space
+
+      Agent.get(:blank_cols, fn s -> MapSet.member?(s, x) end) ->
+        :space
+
+      true ->
+        case Enum.at(universe, y) do
+          nil -> :space
+          row -> Enum.at(row, x)
+        end
     end
   end
 
   def expand(universe, factor \\ 2) do
+    {:ok, blank_rows} = Agent.start_link(fn -> MapSet.new() end)
+    Process.register(blank_rows, :blank_rows)
+    {:ok, blank_cols} = Agent.start_link(fn -> MapSet.new() end)
+    Process.register(blank_cols, :blank_cols)
+
     universe
     |> transpose()
-    |> insert_rows(factor)
+    |> insert_rows(factor, :cols)
     |> transpose()
-    |> insert_rows(factor)
+    |> insert_rows(factor, :rows)
     |> contemplate_the_stars()
+
+    Process.unregister(:blank_rows)
+    Process.unregister(:blank_cols)
   end
 
-  def insert_rows(rows, factor) do
+  def insert_rows(rows, factor, mode) do
     Logger.debug("insert rows")
 
-    Enum.flat_map(rows, fn row ->
+    Enum.flat_map(Enum.with_index(rows), fn {row, i} ->
       if Enum.all?(row, &(&1 == :space)) do
+        case mode do
+          :rows -> Agent.update(:blank_rows, fn s -> MapSet.put(s, i) end)
+          :cols -> Agent.update(:blank_cols, fn s -> MapSet.put(s, i) end)
+        end
+
+        row = Stream.cycle([:ether]) |> Enum.take(Enum.count(row))
         Stream.cycle([row]) |> Enum.take(factor)
       else
         [row]
@@ -69,18 +92,21 @@ defmodule Snow.Cosmos.Universe do
 
   def contemplate_the_stars(universe) do
     Logger.debug("Contemplating the stars")
-    IO.inspect(universe, label: "decorated universe")
     height = Enum.count(universe)
     width = Enum.count(hd(universe))
 
     Logger.debug(
-      "The universe is #{width} wide and #{height} high... That makes #{width * height} possibilities."
+      "The universe is #{width} wide and #{height} high... That makes #{width * height} locations."
     )
+
+    # Agent.get(:blank_rows, fn s -> s end) |> IO.inspect(label: "blank rows")
+    # Agent.get(:blank_cols, fn s -> s end) |> IO.inspect(label: "blank cols")
 
     stars =
       for x <- 0..(width - 1), y <- 0..(height - 1) do
         case get_v(universe, {x, y}) do
           :space -> []
+          :ether -> []
           :galaxy -> [{x, y}]
         end
       end
