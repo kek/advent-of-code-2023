@@ -32,6 +32,7 @@ defmodule SnowWeb.Router do
     pipe_through :browser
 
     get "/", CosmosController, :index
+    get "/image/:name", CosmosController, :image
   end
 
   # Other scopes may use custom stacks.
