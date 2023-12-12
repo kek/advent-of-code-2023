@@ -32,22 +32,18 @@ defmodule Snow.Cosmos.Universe do
 
   @spec expand(nonempty_maybe_improper_list()) :: list()
   def expand(universe) do
-    _height = Enum.count(universe)
-    _width = Enum.count(hd(universe))
-
     universe
-    |> IO.inspect(label: "before expansion")
     |> insert_rows()
     |> transpose()
     |> insert_rows()
     |> transpose()
-    |> IO.inspect(label: "after expansion")
+    |> contemplate_the_stars()
   end
 
   def insert_rows(rows) do
     Enum.flat_map(rows, fn row ->
       if Enum.all?(row, &(&1 == :space)) do
-        added = Enum.map(row, fn _item -> :space end)
+        added = Stream.cycle([:space]) |> Enum.take(Enum.count(row))
         [row, added]
       else
         [row]
@@ -59,5 +55,34 @@ defmodule Snow.Cosmos.Universe do
     rows
     |> List.zip()
     |> Enum.map(&Tuple.to_list/1)
+  end
+
+  def contemplate_the_stars(universe) do
+    height = Enum.count(universe)
+    width = Enum.count(hd(universe))
+
+    stars =
+      for x <- 0..(width - 1), y <- 0..(height - 1) do
+        case get(universe, {x, y}) do
+          :space -> []
+          :galaxy -> [{x, y}]
+        end
+      end
+      |> Enum.flat_map(& &1)
+
+    pairs =
+      for a <- stars, b <- stars, a != b do
+        MapSet.new([a, b])
+      end
+      |> Enum.uniq()
+
+    for pair <- pairs do
+      [{ax, ay}, {bx, by}] = Enum.take(pair, 2)
+      max(ax, bx) - min(ax, bx) + max(ay, by) - min(ay, by)
+    end
+    |> Enum.sum()
+    |> IO.inspect(label: "sum of distances")
+
+    universe
   end
 end
