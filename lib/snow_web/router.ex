@@ -33,6 +33,7 @@ defmodule SnowWeb.Router do
 
     get "/", CosmosController, :index
     get "/image/:name", CosmosController, :image
+    get "/image/:name/expand", CosmosController, :expand
   end
 
   # Other scopes may use custom stacks.

@@ -1,10 +1,10 @@
 defmodule SnowWeb.CosmosController do
   alias Snow.Cosmos.Examples
-  alias Snow.Cosmos.SpaceMap
+  alias Snow.Cosmos.Universe
   use SnowWeb, :controller
 
   def index(conn, _params) do
-    {:ok, space_map, "", _, _, _} = SpaceMap.document(Examples.example_1())
+    {:ok, space_map, "", _, _, _} = Universe.document(Examples.example_1())
     render(conn, :index, page_title: "Cosmic Expansion", space_map: space_map)
   end
 
@@ -12,15 +12,15 @@ defmodule SnowWeb.CosmosController do
     data =
       case name do
         "example" ->
-          {:ok, space_map, _, _, _, _} = SpaceMap.document(Examples.example_1())
+          {:ok, universe, _, _, _, _} = Universe.document(Examples.example_1())
 
-          space_image(space_map)
+          draw(universe)
           |> Image.resize!(20)
 
         "real" ->
-          {:ok, space_map, _, _, _, _} = SpaceMap.document(Examples.my_input())
+          {:ok, universe, _, _, _, _} = Universe.document(Examples.my_input())
 
-          space_image(space_map)
+          draw(universe)
           |> Image.resize!(4)
 
         _ ->
@@ -33,9 +33,38 @@ defmodule SnowWeb.CosmosController do
     |> resp(200, data)
   end
 
-  def space_image(space_map) do
-    height = Enum.count(space_map)
-    width = Enum.count(hd(space_map))
+  def expand(conn, %{"name" => name}) do
+    data =
+      case name do
+        "example" ->
+          {:ok, universe, _, _, _, _} = Universe.document(Examples.example_1())
+
+          universe
+          |> Universe.expand()
+          |> draw()
+          |> Image.resize!(20)
+
+        "real" ->
+          {:ok, universe, _, _, _, _} = Universe.document(Examples.my_input())
+
+          universe
+          |> Universe.expand()
+          |> draw()
+          |> Image.resize!(4)
+
+        _ ->
+          Image.new!(100, 100, color: :red)
+      end
+      |> Image.write!(:memory, suffix: ".png")
+
+    conn
+    |> put_resp_content_type("image/png")
+    |> resp(200, data)
+  end
+
+  defp draw(universe) do
+    height = Enum.count(universe)
+    width = Enum.count(hd(universe))
 
     coords =
       for y <- 0..(height - 1),
@@ -44,12 +73,13 @@ defmodule SnowWeb.CosmosController do
 
     Enum.reduce(
       coords,
-      Image.new!(height, width, color: :gray),
+      Image.new!(width, height, color: :gray),
       fn {x, y}, image ->
         color =
-          case SpaceMap.get(space_map, {x, y}) do
+          case Universe.get(universe, {x, y}) do
             :space -> :black
             :galaxy -> [255, 255, 200]
+            :notice -> [0, 255, 0]
           end
 
         Image.Draw.point!(image, x, y, color: color)
