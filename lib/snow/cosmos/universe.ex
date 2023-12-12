@@ -33,22 +33,21 @@ defmodule Snow.Cosmos.Universe do
 
   def expand(universe, factor \\ 2) do
     universe
-    |> transpose()
     |> insert_rows()
     |> transpose()
     |> insert_rows()
+    |> transpose()
     |> contemplate_the_stars(factor)
   end
 
   def insert_rows(rows) do
     Logger.debug("insert rows")
 
-    Enum.flat_map(rows, fn row ->
+    Enum.map(rows, fn row ->
       if Enum.all?(row, &(&1 == :space || &1 == :ether)) do
-        ether_row = Enum.map(row, fn _ -> :ether end)
-        [row, ether_row]
+        Enum.map(row, fn _ -> :ether end)
       else
-        [row]
+        row
       end
     end)
   end
@@ -66,9 +65,9 @@ defmodule Snow.Cosmos.Universe do
     height = Enum.count(universe)
     width = Enum.count(hd(universe))
 
-    Logger.debug(
-      "The universe is #{width} wide and #{height} high... That makes #{width * height} locations."
-    )
+    # Logger.debug(
+    #   "The universe is #{width} wide and #{height} high... That makes #{width * height} locations."
+    # )
 
     stars =
       for x <- 0..(width - 1), y <- 0..(height - 1) do
@@ -100,7 +99,26 @@ defmodule Snow.Cosmos.Universe do
     universe
   end
 
-  defp distance(universe, {ax, ay}, {bx, by}, ether_weight) do
-    max(ax, bx) - min(ax, bx) + max(ay, by) - min(ay, by)
+  defp distance(universe, a, b, ether_weight) do
+    path(project(a, universe, ether_weight), project(b, universe, ether_weight))
   end
+
+  # defp distance(universe, {ax, ay}, {bx, by}, ether_weight) do
+  #   {fromx, fromy} = {min(ax, bx), min(ay, by)} |> project(universe, ether_weight)
+  #   {tox, toy} = {max(ax, bx), max(ay, by)} |> project(universe, ether_weight)
+
+  #   tox - fromx + toy - fromy
+  # end
+
+  # defp project({x, y}, universe, ether_weight) do
+  #   # |> IO.inspect(label: "row")
+  #   row = Enum.at(universe, y) |> Enum.take(x)
+  #   # |> IO.inspect(label: "column")
+  #   column = Enum.map(universe, &Enum.at(&1, x)) |> Enum.take(y)
+  #   ethers_on_row = Enum.count(row, &(&1 == :ether))
+  #   ethers_in_column = Enum.count(column, &(&1 == :ether))
+  #   ether_width = ethers_on_row * ether_weight
+  #   ether_height = ethers_in_column * ether_weight
+  #   {x + ether_width, y + ether_height}
+  # end
 end

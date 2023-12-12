@@ -79,6 +79,7 @@ defmodule SnowWeb.CosmosController do
           case Universe.get(universe, {x, y}) do
             :space -> :black
             :galaxy -> [255, 255, 200]
+            :ether -> [0, 50, 0]
           end
 
         Image.Draw.point!(image, x, y, color: color)
