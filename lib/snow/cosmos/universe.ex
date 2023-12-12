@@ -31,51 +31,22 @@ defmodule Snow.Cosmos.Universe do
     end
   end
 
-  def get_v(universe, {x, y}) do
-    cond do
-      Agent.get(:blank_rows, fn s -> MapSet.member?(s, y) end) ->
-        :space
-
-      Agent.get(:blank_cols, fn s -> MapSet.member?(s, x) end) ->
-        :space
-
-      true ->
-        case Enum.at(universe, y) do
-          nil -> :space
-          row -> Enum.at(row, x)
-        end
-    end
-  end
-
   def expand(universe, factor \\ 2) do
-    {:ok, blank_rows} = Agent.start_link(fn -> MapSet.new() end)
-    Process.register(blank_rows, :blank_rows)
-    {:ok, blank_cols} = Agent.start_link(fn -> MapSet.new() end)
-    Process.register(blank_cols, :blank_cols)
-
     universe
     |> transpose()
-    |> insert_rows(factor, :cols)
+    |> insert_rows()
     |> transpose()
-    |> insert_rows(factor, :rows)
-    |> contemplate_the_stars()
-
-    Process.unregister(:blank_rows)
-    Process.unregister(:blank_cols)
+    |> insert_rows()
+    |> contemplate_the_stars(factor)
   end
 
-  def insert_rows(rows, factor, mode) do
+  def insert_rows(rows) do
     Logger.debug("insert rows")
 
-    Enum.flat_map(Enum.with_index(rows), fn {row, i} ->
-      if Enum.all?(row, &(&1 == :space)) do
-        case mode do
-          :rows -> Agent.update(:blank_rows, fn s -> MapSet.put(s, i) end)
-          :cols -> Agent.update(:blank_cols, fn s -> MapSet.put(s, i) end)
-        end
-
-        row = Stream.cycle([:ether]) |> Enum.take(Enum.count(row))
-        Stream.cycle([row]) |> Enum.take(factor)
+    Enum.flat_map(rows, fn row ->
+      if Enum.all?(row, &(&1 == :space || &1 == :ether)) do
+        ether_row = Enum.map(row, fn _ -> :ether end)
+        [row, ether_row]
       else
         [row]
       end
@@ -90,7 +61,7 @@ defmodule Snow.Cosmos.Universe do
     |> Enum.map(&Tuple.to_list/1)
   end
 
-  def contemplate_the_stars(universe) do
+  def contemplate_the_stars(universe, ether_weight) do
     Logger.debug("Contemplating the stars")
     height = Enum.count(universe)
     width = Enum.count(hd(universe))
@@ -99,12 +70,9 @@ defmodule Snow.Cosmos.Universe do
       "The universe is #{width} wide and #{height} high... That makes #{width * height} locations."
     )
 
-    # Agent.get(:blank_rows, fn s -> s end) |> IO.inspect(label: "blank rows")
-    # Agent.get(:blank_cols, fn s -> s end) |> IO.inspect(label: "blank cols")
-
     stars =
       for x <- 0..(width - 1), y <- 0..(height - 1) do
-        case get_v(universe, {x, y}) do
+        case get(universe, {x, y}) do
           :space -> []
           :ether -> []
           :galaxy -> [{x, y}]
@@ -123,12 +91,16 @@ defmodule Snow.Cosmos.Universe do
     Logger.debug("Calculating the distances")
 
     for pair <- pairs do
-      [{ax, ay}, {bx, by}] = Enum.take(pair, 2)
-      max(ax, bx) - min(ax, bx) + max(ay, by) - min(ay, by)
+      [a, b] = Enum.take(pair, 2)
+      distance(universe, a, b, ether_weight)
     end
     |> Enum.sum()
     |> IO.inspect(label: "sum of distances")
 
     universe
+  end
+
+  defp distance(universe, {ax, ay}, {bx, by}, ether_weight) do
+    max(ax, bx) - min(ax, bx) + max(ay, by) - min(ay, by)
   end
 end
