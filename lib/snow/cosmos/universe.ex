@@ -1,6 +1,8 @@
 defmodule Snow.Cosmos.Universe do
   import NimbleParsec
 
+  require Logger
+
   def celestial_object("."), do: :space
   def celestial_object("#"), do: :galaxy
 
@@ -41,10 +43,14 @@ defmodule Snow.Cosmos.Universe do
   end
 
   def insert_rows(rows) do
+    Logger.debug("insert rows")
+
     Enum.flat_map(rows, fn row ->
+      n = Enum.count(row)
+
       if Enum.all?(row, &(&1 == :space)) do
-        added = Stream.cycle([:space]) |> Enum.take(Enum.count(row))
-        [row, added]
+        added = Stream.cycle([row]) |> Enum.take(1)
+        [row | added] |> IO.inspect(label: "added")
       else
         [row]
       end
