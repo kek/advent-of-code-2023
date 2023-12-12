@@ -31,13 +31,12 @@ defmodule Snow.Cosmos.Universe do
     end
   end
 
-  def expand(universe, factor \\ 2) do
+  def expand(universe) do
     universe
     |> insert_rows()
     |> transpose()
     |> insert_rows()
     |> transpose()
-    |> contemplate_the_stars(factor)
   end
 
   def insert_rows(rows) do
@@ -95,9 +94,9 @@ defmodule Snow.Cosmos.Universe do
       distance(a, b)
     end
     |> Enum.sum()
-    |> IO.inspect(label: "sum of distances")
-
-    universe
+    |> tap(fn x ->
+      Logger.debug("sum of distances: #{x}")
+    end)
   end
 
   defp distance({ax, ay}, {bx, by}) do

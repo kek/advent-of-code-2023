@@ -1,3 +1,11 @@
 defmodule Snow.Days.Day11Test do
-  # {:ok, universe, _, _, _, _} = Snow.Cosmos.Universe.document(Snow.Cosmos.Examples.my_input()); {time, _} = :timer.tc fn -> Snow.Cosmos.Universe.expand(universe, 10000000) end; time
+  use ExUnit.Case
+
+  test "yes" do
+    {:ok, universe, _, _, _, _} = Snow.Cosmos.Universe.document(Snow.Cosmos.Examples.my_input())
+
+    assert universe
+           |> Snow.Cosmos.Universe.expand()
+           |> Snow.Cosmos.Universe.contemplate_the_stars(1_000_000) == 560_822_911_938
+  end
 end
