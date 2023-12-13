@@ -20,7 +20,8 @@ defmodule Snow.Application do
       # {Snow.Worker, arg},
       # Start to serve requests, typically the last entry
       SnowWeb.Endpoint,
-      Snow.PipeMaze.Cache
+      Snow.PipeMaze.Cache,
+      Snow.Cache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
