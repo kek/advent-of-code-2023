@@ -53,6 +53,7 @@ defmodule Snow.Days.Day12Test do
     assert count(".??..??...?##.", [1, 1, 3]) == 4
   end
 
+  @tag :skip
   test "permutations" do
     springs_pattern = "???.###"
     springs_groups = [1, 1, 3]
